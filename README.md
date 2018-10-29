@@ -1,7 +1,10 @@
 # The secuTrial R library
 
-## installing
+## Installing with devtools
 install.packages("devtools", dependencies=T)
+
 devtools::install_github("SwissClinicalTrialOrganisation/DM_secuTrial_R")
+
+library(secuTrial)
 
 
