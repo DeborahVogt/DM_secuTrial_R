@@ -2,6 +2,9 @@
 
 export(add.center)
 export(add.pat.id)
+export(convert.all.dates)
+export(days.of.month)
+export(fill.partial.date)
 export(load.study.options)
 export(load.tables)
 export(mnpaid2mnppid)
