@@ -167,7 +167,7 @@ mnppid2center(1509, remove.ctag = 0)
 # Levels: Hospital (BMD)
 
 ## if pat.id is not present in tables it can be added
-load.tables(system.file("extdata", "s_export_CSV-xls_DEM00_20180912-125720.zip", package = "secuTrial"), add.pat.id = F)
+load.tables(data.dir=system.file("extdata", "s_export_CSV-xls_DEM00_20180912-125720.zip", package = "secuTrial"), add.pat.id = F)
 ## original
 head(names(bmd), n=3)
 # "mnppid"      "mnpdocid"    "mnplastedit"
@@ -193,7 +193,7 @@ dim(add.center(bmd))
 
 ### (6)
 ## loading rectangular tables (loads intp global variable rtdata)
-load.tables(system.file("extdata", "s_export_rt-CSV-xls_DEM00_20181016-151332.zip", package = "secuTrial"), is.rt = T, decode.rt.visitlabels = T)
+load.tables(data.dir=system.file("extdata", "s_export_rt-CSV-xls_DEM00_20181016-151332.zip", package = "secuTrial"), is.rt = T, decode.rt.visitlabels = T)
 ## names(rtdata)
 
 
