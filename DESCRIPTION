@@ -1,7 +1,7 @@
 Package: secuTrial
 Type: Package
 Title: Handling of secuTrial related data
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: c(person("Pascal", "Benkert", email = "pascal.benkert@usb.ch", role = c("aut", "cre")), 
              person("Constantin", "Sluka", email = "constantin.sluka@usb.ch", role = c("ctb")), 
              person("Patrick R.", "Wright", email = "patrick.wright@usb.ch", role = c("ctb")), 
