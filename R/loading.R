@@ -190,20 +190,23 @@ load.tables <- function(data.dir,
   #######################################################
 
   ## Load ExportOptions.html
-  path.or.zip <- file.path(data.dir,"ExportOptions.html")
+  path.or.zip <- Sys.glob(paste0(data.dir,"/ExportOptions*"))
   if (is.zip) {
-      if (!"ExportOptions.html" %in% unzip(data.dir, list=TRUE)$Name) {
-          stop("ExportOptions.html not found in secuTrial export!")
+      if (!any(grepl("ExportOptions", unzip(data.dir, list=TRUE)$Name))) {
+          stop("ExportOptions html-file not found in secuTrial export!")
           return(NULL)
       } else {
-          path.or.zip <- unz(data.dir,"ExportOptions.html")
+          fn <- unzip(data.dir, list=TRUE)$Name[grepl("ExportOptions", unzip(data.dir, list=TRUE)$Name)]
+          if(fn != "ExportOptions.html") warning("The export option 'shorten table names' has not been enables which results in large data.frame names.")
+          path.or.zip <- unz(data.dir, fn)
       }
   } else {
       if(!file.exists(path.or.zip)) {
-          stop("ExportOptions.html not found in secuTrial export!")
+          stop("ExportOptions html-file not found in secuTrial export!")
           return(NULL)
       }
   }
+
 
   if(is.rt) { ## rectangular input
     close(path.or.zip)
