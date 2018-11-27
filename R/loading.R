@@ -229,11 +229,11 @@ load.tables <- function(data.dir,
         names(rtdata_internal) <- gsub(x = names(rtdata_internal), pattern = vp$mnpvisid[i], replacement = vp$mnpvislabel[i])
       }
       ## remove leading v
-      names(rtdata_internal) <- gsub(x=names(rtdata_internal), pattern="^v", replacement="")
+      #names(rtdata_internal) <- gsub(x=names(rtdata_internal), pattern="^v", replacement="")
     }
     ## rtdata is a global variable
     if (silent==FALSE) {
-      cat("-- rectangular data written into variable rtdata\n")
+      cat("--- rectangular data written into variable rtdata ---\n")
     }
     rtdata <<- rtdata_internal
   } else { ## non rectangular input
