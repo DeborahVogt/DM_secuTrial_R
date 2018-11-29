@@ -182,8 +182,7 @@ load.tables <- function(data.dir,
   }
 
   ## handle loading from zip
-  is.zip <- FALSE
-  if(substr(data.dir, nchar(data.dir)-2, nchar(data.dir)) == "zip") is.zip <- TRUE
+  is.zip <- grepl(".zip$", data.dir)
 
   #######################################################
   ## Check if neccessary items are included in export  ##
