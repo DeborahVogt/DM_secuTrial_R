@@ -101,6 +101,8 @@ read.DB.table <- function(path, convert.dates=FALSE, convert.unknown.date.to.na=
 #' in order to be able to correctly load the tables of a given study.
 #' The list is used in the function \code{read.DB.table}.
 #'
+#' @param data.dir location of the export directory (or zip file) containing the csv/xls files
+#'
 #' @details \code{partial.date.handling}: By default, potential data columns containing entries that cannot be converted are
 #' skipped (option 'skip'). With 'force.conversion' fields incompatible with the date format are converted to NA.
 #' 'fill.partial.dates' keeps the orginal column untouched and adds a new column to the data frame with the name <colname>.partial.dates.processed
@@ -108,13 +110,92 @@ read.DB.table <- function(path, convert.dates=FALSE, convert.unknown.date.to.na=
 #' With 'fill.partial.dates.and.keep.original' partial dates are processed directly and the original data is copied to <colname>.original.
 #' @export
 #' @seealso read.DB.table, convert.all.dates
-load.study.options <- function() {
-  study.options <- list(sep='\t',
-                        date.format=c("%Y%m%d", "%Y-%m-%d"),
-                        na.strings = c("NA",""), # if blanks mean missing
-                        unknown.date.string = NULL, # incomplete dates
-                        partial.date.string = "",
-                        partial.date.handling = "fill.partial.dates.and.keep.original")
+
+load.study.options <- function(data.dir) {
+
+  is.zip <- grepl(".zip$", data.dir)
+
+  # shortnames
+  if(is.zip){
+    files <- unzip(data.dir, list=T)
+    w <- grepl("ExportOptions", files$Name)
+    parsed.export <- readLines(unz(data.dir, files$Name[w]))
+  } else {
+    files <- data.frame(Names = list.files(data.dir))
+    w <- grepl("ExportOptions", files$Name)
+    parsed.export <- readLines(file.path(data.dir, files$Name[w]))
+  }
+  end <- gsub("ExportOptions|.html", "", files$Name[w])
+  shortnames <- any(grepl("Shorten", parsed.export))
+
+  # metadata file names
+  meta_names <- list()
+  if(shortnames){
+    meta_names$forms <- "fs"
+    meta_names$casenodes <- "cn"
+    meta_names$centres <- "ctr"
+    meta_names$items <- "is"
+    meta_names$questions <- "qs"
+    meta_names$visitplan <- "vp"
+    meta_names$visitplanforms <- "vpfs"
+  } else {
+    meta_names$forms <- "forms"
+    meta_names$casenodes <- "casenodes"
+    meta_names$centres <- "centres"
+    meta_names$items <- "items"
+    meta_names$questions <- "questions"
+    meta_names$visitplan <- "visitplan"
+    meta_names$visitplanforms <- "visitplanforms"
+  }
+  meta_names$cl <- "cl"
+
+  # sep ----
+  if(is.zip) line1 <- readLines(unz(data.dir, files$Name[!grepl("html$", files$Name)][1]), 1)
+  if(!is.zip) line1 <- readLines(file.path(data.dir, files$Name[!grepl("html$", files$Name)][1]), 1)
+  if (grepl(",", line1)) {
+    sep <- ","
+  } else if (grepl("'", line1)) {
+    sep <- "'"
+  } else if (grepl(";", line1)) {
+    sep <- ";"
+  } else if (grepl("\\t", line1)) {
+    sep <- "\t"
+  } else if (grepl("@", line1)) {
+    sep <- "@"
+  } else {
+    stop("Unknown Field Separator")
+    return(NULL)
+  }
+
+  # NA strings
+  na.strings <- c("NA","")
+  # TODO : custom formats? parsed from ExportOptions?
+
+  # dates ----
+  # date format
+  date.format <- c("%Y%m%d", "%Y-%m-%d")
+  # TODO : custom formats? parsed from ExportOptions?
+
+  # unknown date strings
+  unknown.date.string <- NULL
+  # TODO : custom formats? parsed from ExportOptions?
+
+  # partial dates
+  partial.date.string <- "",
+  partial.date.handling <- "fill.partial.dates.and.keep.original"
+
+  # return object
+  study.options <- list(sep=sep,
+                        date.format=date.format,
+                        na.strings = na.strings, # if blanks mean missing
+                        unknown.date.string = unknown.date.string, # incomplete dates
+                        partial.date.string = partial.date.string,
+                        partial.date.handling = partial.date.handling,
+                        shortnames = shortnames,
+                        is.zip = is.zip,
+                        meta_names = meta_names,
+                        files = files$Name,
+                        file.end = end)
   assign("study.options", study.options, envir = .GlobalEnv)
   return(NULL)
 }
@@ -181,8 +262,10 @@ load.tables <- function(data.dir,
         return(NULL)
   }
 
+  load.study.options(data.dir)
+
   ## handle loading from zip
-  is.zip <- grepl(".zip$", data.dir)
+  is.zip <- study.options$is.zip
 
   #######################################################
   ## Check if neccessary items are included in export  ##
@@ -363,23 +446,9 @@ load.tables <- function(data.dir,
               }
               ## Get info on Field separator and edit study.options
               if(silent==FALSE) cat("*** Parsing ExportOptions.html for csv separator\n")
-              parsed.sep <- parsed.export[grep("Field separated with",parsed.export)||grep("Feld getrennt mit",parsed.export)]
-              if (length(grep("Komma",parsed.sep))!=0) {
-                  study.options$sep <- ","
-              } else if (length(grep("'",parsed.sep))!=0) {
-                  study.options$sep <- "'"
-              } else if (length(grep("Semikolon",parsed.sep))!=0) {
-                  study.options$sep <- ";"
-              } else if (length(grep("Tabulator",parsed.sep))!=0) {
-                  study.options$sep <- "\t"
-              } else if (length(grep("@",parsed.sep))!=0) {
-                  study.options$sep <- "@"
-              } else {
-                  stop("Unknown Field Separator in ExportOptions.html")
-                  return(NULL)
-              }
+              study.options$sep
               if(silent==FALSE) cat(paste0("*** CSV separator identified: '",study.options$sep,"'\n"))
-              assign("study.options",study.options, envir = .GlobalEnv)
+
         } else {
             stop("ExportOptions.html does not include information on export Format (.xls or .csv)")
             return(NULL)
