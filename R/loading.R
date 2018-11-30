@@ -493,6 +493,11 @@ load.tables <- function(data.dir,
             } else {
                 t2 <- t
             }
+            t2 <- gsub(study.options$end, "", t2) # shorten the names
+            if(!study.options$shortname) e <- grepl("^e", t2)
+            t2 <- gsub("mnp[[:alnum:]]{1,}_", "", t2) # shorten the names
+            if(e & !study.options$shortname) gsub("^e", "e_", t2) # put the underscore back for
+
             ## Finally load the table
             if(silent==FALSE) cat("--- table",table.filename,"loaded as",t2,"---\n")
         assign(t2, read.DB.table(path.or.zip, convert.dates, convert.unknown.date.to.na, rename.headers,
