@@ -1,9 +1,9 @@
 ## Initilise study.options in GlobalEnv
 ##
 ## Upon package attachment these two lists are initialised in GlobalEnv.
-.onAttach <- function(libname, pkgname) {
-  load.study.options()
-}
+# .onAttach <- function(libname, pkgname) {
+#   load.study.options()
+# }
 
 
 
