@@ -182,12 +182,12 @@ load.study.options <- function(data.dir) {
   # TODO : custom formats? parsed from ExportOptions?
 
   # partial dates
-  partial.date.string <- "",
+  partial.date.string <- ""
   partial.date.handling <- "fill.partial.dates.and.keep.original"
 
   # return object
   study.options <- list(sep=sep,
-                        date.format=date.format,
+                        date.format = date.format,
                         na.strings = na.strings, # if blanks mean missing
                         unknown.date.string = unknown.date.string, # incomplete dates
                         partial.date.string = partial.date.string,
@@ -423,10 +423,10 @@ load.tables <- function(data.dir,
         if ((length(grep("CSV format",parsed.export))!=0 | length(grep("CSV-Format",parsed.export))!=0 ) & length(grep("MS Excel",parsed.export))!=0) {
               if(add.pat.id == TRUE & add.center == TRUE) {
                   tables <- c(paste0(study.options$meta_names$centres,
-                                     study.options$end,
+                                     study.options$file.end,
                                      study.options$extension),
                               paste0(study.options$meta_names$casenodes,
-                                     study.options$end,
+                                     study.options$file.end,
                                      study.options$extension),
                               tables)
                   tables <- tables[!duplicated(tables)]
@@ -434,7 +434,7 @@ load.tables <- function(data.dir,
               }
               if(add.pat.id == TRUE & add.center == FALSE) {
                   tables <- c(paste0(study.options$meta_names$casenodes,
-                                     study.options$end,
+                                     study.options$file.end,
                                      study.options$extension), tables)
                   tables <- tables[!duplicated(tables)]
                   if(silent==FALSE) cat("*** Added cn.xls to tables\n")
@@ -442,10 +442,10 @@ load.tables <- function(data.dir,
         } else if ((length(grep("CSV format",parsed.export))!=0 | length(grep("CSV-Format",parsed.export))!=0)  & length(grep("MS Excel",parsed.export))==0) {
               if(add.pat.id == TRUE & add.center == TRUE) {
                 tables <- c(paste0(study.options$meta_names$centres,
-                                   study.options$end,
+                                   study.options$file.end,
                                    study.options$extension),
                             paste0(study.options$meta_names$casenodes,
-                                   study.options$end,
+                                   study.options$file.end,
                                    study.options$extension),
                             tables)
                   tables <- tables[!duplicated(tables)]
@@ -453,7 +453,7 @@ load.tables <- function(data.dir,
               }
               if(add.pat.id == TRUE & add.center == FALSE) {
                 tables <- c(paste0(study.options$meta_names$casenodes,
-                                   study.options$end,
+                                   study.options$file.end,
                                    study.options$extension), tables)
                 tables <- tables[!duplicated(tables)]
                   tables <- tables[!duplicated(tables)]
@@ -486,17 +486,17 @@ load.tables <- function(data.dir,
                 }
             }
             ## Make sure that 'ctr' and 'cn' are loaded as 'center' and 'patient'
+            t <- gsub(study.options$file.end, "", t) # shorten the names
+            if(!study.options$shortname) e <- grepl("^e", t)
+            t <- gsub("mnp[[:alnum:]]{1,}_", "", t) # shorten the names
+            if(e & !study.options$shortname) t <- gsub("^e", "e_", t) # put the underscore back for
             if (t=="ctr") {
                 t2 <- "center"
-            } else if (t=="cn") {
+            } else if (t %in% c("cn", "casenodes")) {
                 t2 <- "patient"
             } else {
                 t2 <- t
             }
-            t2 <- gsub(study.options$end, "", t2) # shorten the names
-            if(!study.options$shortname) e <- grepl("^e", t2)
-            t2 <- gsub("mnp[[:alnum:]]{1,}_", "", t2) # shorten the names
-            if(e & !study.options$shortname) gsub("^e", "e_", t2) # put the underscore back for
 
             ## Finally load the table
             if(silent==FALSE) cat("--- table",table.filename,"loaded as",t2,"---\n")
