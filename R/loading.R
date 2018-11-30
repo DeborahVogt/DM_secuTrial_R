@@ -126,6 +126,7 @@ load.study.options <- function(data.dir) {
     parsed.export <- readLines(file.path(data.dir, files$Name[w]))
   }
   end <- gsub("ExportOptions|.html", "", files$Name[w])
+  ext <- unique(sapply(strsplit(files$Name[-w], ".", fixed = TRUE), function(x) x[2]))
   shortnames <- any(grepl("Shorten", parsed.export))
 
   # metadata file names
@@ -195,7 +196,8 @@ load.study.options <- function(data.dir) {
                         is.zip = is.zip,
                         meta_names = meta_names,
                         files = files$Name,
-                        file.end = end)
+                        file.end = end,
+                        extension = ext)
   assign("study.options", study.options, envir = .GlobalEnv)
   return(NULL)
 }
@@ -396,11 +398,7 @@ load.tables <- function(data.dir,
         }
         # Get the names of the table.list
         if(silent==FALSE) cat("** Building the 'table.list'\n")
-        if(is.zip) {
-          table.list <- unzip(data.dir, list=TRUE)$Name
-        } else {
-          table.list <- list.files(data.dir)
-        }
+        table.list <- study.options$files
         # ExportOptions.html are not a dataframe
         table.list <- table.list[which(table.list!="ExportOptions.html")]
         assign("table.list", table.list, envir=.GlobalEnv)
@@ -424,23 +422,40 @@ load.tables <- function(data.dir,
         ## Add xls or csv version of patient and center tables
         if ((length(grep("CSV format",parsed.export))!=0 | length(grep("CSV-Format",parsed.export))!=0 ) & length(grep("MS Excel",parsed.export))!=0) {
               if(add.pat.id == TRUE & add.center == TRUE) {
-                  tables <- c("ctr.xls", "cn.xls", tables)
+                  tables <- c(paste0(study.options$meta_names$centres,
+                                     study.options$end,
+                                     study.options$extension),
+                              paste0(study.options$meta_names$casenodes,
+                                     study.options$end,
+                                     study.options$extension),
+                              tables)
                   tables <- tables[!duplicated(tables)]
                   if(silent==FALSE) cat("*** Added ctr.xls and cn.xls to tables\n")
               }
               if(add.pat.id == TRUE & add.center == FALSE) {
-                  tables <- c("cn.xls", tables)
+                  tables <- c(paste0(study.options$meta_names$casenodes,
+                                     study.options$end,
+                                     study.options$extension), tables)
                   tables <- tables[!duplicated(tables)]
                   if(silent==FALSE) cat("*** Added cn.xls to tables\n")
               }
         } else if ((length(grep("CSV format",parsed.export))!=0 | length(grep("CSV-Format",parsed.export))!=0)  & length(grep("MS Excel",parsed.export))==0) {
               if(add.pat.id == TRUE & add.center == TRUE) {
-                  tables <- c("ctr.csv", "cn.csv", tables)
+                tables <- c(paste0(study.options$meta_names$centres,
+                                   study.options$end,
+                                   study.options$extension),
+                            paste0(study.options$meta_names$casenodes,
+                                   study.options$end,
+                                   study.options$extension),
+                            tables)
                   tables <- tables[!duplicated(tables)]
                   if(silent==FALSE) cat("*** Added ctr.csv and cn.csv to tables\n")
               }
               if(add.pat.id == TRUE & add.center == FALSE) {
-                  tables <- c("cn.csv", tables)
+                tables <- c(paste0(study.options$meta_names$casenodes,
+                                   study.options$end,
+                                   study.options$extension), tables)
+                tables <- tables[!duplicated(tables)]
                   tables <- tables[!duplicated(tables)]
                   if(silent==FALSE) cat("*** Added cn.csv to tables\n")
               }
