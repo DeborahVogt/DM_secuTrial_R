@@ -57,7 +57,7 @@ read.DB.table <- function(path, convert.dates=FALSE, convert.unknown.date.to.na=
     }
     )
   }
-  ## in eralier secuTrial exports there was a last/empty column "X" -> remove it
+  ## in earlier secuTrial exports there was a last/empty column "X" -> remove it
   if("X" %in% names(tab)) {
     tab <- tab[,-ncol(tab)]
   }
@@ -128,6 +128,7 @@ load.study.options <- function(data.dir) {
   end <- gsub("ExportOptions|.html", "", files$Name[w])
   ext <- unique(sapply(strsplit(files$Name[-w], ".", fixed = TRUE), function(x) x[2]))
   shortnames <- any(grepl("Shorten", parsed.export))
+  # TODO : German for shorten?
 
   # metadata file names
   meta_names <- list()
@@ -197,7 +198,8 @@ load.study.options <- function(data.dir) {
                         meta_names = meta_names,
                         files = files$Name,
                         file.end = end,
-                        extension = ext)
+                        extension = ext,
+                        data.dir = data.dir)
   assign("study.options", study.options, envir = .GlobalEnv)
   return(NULL)
 }
@@ -422,39 +424,27 @@ load.tables <- function(data.dir,
         ## Add xls or csv version of patient and center tables
         if ((length(grep("CSV format",parsed.export))!=0 | length(grep("CSV-Format",parsed.export))!=0 ) & length(grep("MS Excel",parsed.export))!=0) {
               if(add.pat.id == TRUE & add.center == TRUE) {
-                  tables <- c(paste0(study.options$meta_names$centres,
-                                     study.options$file.end,
-                                     study.options$extension),
-                              paste0(study.options$meta_names$casenodes,
-                                     study.options$file.end,
-                                     study.options$extension),
+                  tables <- c(.constructmetaname("centres"),
+                              .constructmetaname("casenodes"),
                               tables)
                   tables <- tables[!duplicated(tables)]
                   if(silent==FALSE) cat("*** Added ctr.xls and cn.xls to tables\n")
               }
               if(add.pat.id == TRUE & add.center == FALSE) {
-                  tables <- c(paste0(study.options$meta_names$casenodes,
-                                     study.options$file.end,
-                                     study.options$extension), tables)
+                  tables <- c(.constructmetaname("casenodes"), tables)
                   tables <- tables[!duplicated(tables)]
                   if(silent==FALSE) cat("*** Added cn.xls to tables\n")
               }
         } else if ((length(grep("CSV format",parsed.export))!=0 | length(grep("CSV-Format",parsed.export))!=0)  & length(grep("MS Excel",parsed.export))==0) {
               if(add.pat.id == TRUE & add.center == TRUE) {
-                tables <- c(paste0(study.options$meta_names$centres,
-                                   study.options$file.end,
-                                   study.options$extension),
-                            paste0(study.options$meta_names$casenodes,
-                                   study.options$file.end,
-                                   study.options$extension),
+                tables <- c(.constructmetaname("centres"),
+                            .constructmetaname("casenodes"),
                             tables)
                   tables <- tables[!duplicated(tables)]
                   if(silent==FALSE) cat("*** Added ctr.csv and cn.csv to tables\n")
               }
               if(add.pat.id == TRUE & add.center == FALSE) {
-                tables <- c(paste0(study.options$meta_names$casenodes,
-                                   study.options$file.end,
-                                   study.options$extension), tables)
+                tables <- c(.constructmetaname("casenodes"), tables)
                 tables <- tables[!duplicated(tables)]
                   tables <- tables[!duplicated(tables)]
                   if(silent==FALSE) cat("*** Added cn.csv to tables\n")
@@ -487,9 +477,7 @@ load.tables <- function(data.dir,
             }
             ## Make sure that 'ctr' and 'cn' are loaded as 'center' and 'patient'
             t <- gsub(study.options$file.end, "", t) # shorten the names
-            if(!study.options$shortname) e <- grepl("^e", t)
-            t <- gsub("mnp[[:alnum:]]{1,}_", "", t) # shorten the names
-            if(e & !study.options$shortname) t <- gsub("^e", "e_", t) # put the underscore back for
+            t <- .removeproj(t) # shorten the names
             if (t=="ctr") {
                 t2 <- "center"
             } else if (t %in% c("cn", "casenodes")) {
@@ -506,4 +494,78 @@ load.tables <- function(data.dir,
     }
   }
 }
+
+
+
+
+
+# Two hidden accessory functions
+# construct names of metadata tables from study.options object
+.constructmetaname <- function(x){
+  paste0(study.options$meta_names[x],
+         study.options$file.end,
+         ".",
+         study.options$extension)
+}
+# remove project name (mnpXYZ_) from whatever
+.removeproj <- function(x){
+  e <- grepl("^e", x)
+  x <- gsub("mnp[[:alnum:]]{1,}_", "", x)
+  x <- gsub("^_", "", x)
+  x[e] <- gsub("^e", "e_", x[e])
+  x
+}
+
+
+#' Load labels from an export .
+#'
+#' Get a named vector of variable labels.
+#' Uses results of \code{load.study.options} directly - must be run after \code{load.tables} or \code{load.study.options}
+#' @examples
+#' ## non rectangular table
+#' load.study.options(data.dir=system.file("extdata", "s_export_CSV-xls_DEM00_20180912-125720.zip", package = "secuTrial"))
+#' labs <- load.tables()
+#' labs[1]
+#' @export
+#' @seealso read.DB.table, load.table.list (used in dossier-specific packages), load.study.options
+#' @references http://stackoverflow.com/questions/3640925/global-variable-in-r-function
+#' @return (Pre-processed) tables in \code{tables} as data frames
+
+load.labels <- function(){
+  if(!exists("study.options")) stop("'study.options' not found \nrun load.study.options(...) or load.tables(...)")
+  if(study.options$is.zip){
+    tmp <- read.table(unz(study.options$data.dir,
+                          .constructmetaname("items")),
+                      sep = study.options$sep,
+                      na.strings = study.options$na.strings,
+                      header = TRUE)
+
+  } else {
+    tmp <- read.table(file.path(study.options$data.dir,
+                                .constructmetaname("items")),
+                      sep = study.options$sep,
+                      na.strings = study.options$na.strings,
+                      header = TRUE)
+  }
+  # remove layout dummies
+  tmp <- tmp[!is.na(tmp$ffcolname), ]
+  # unique variables
+  tmp <- unique(tmp[, c("ffcolname", "fflabel")])
+  # duplicates (different labels) - retain longest
+  if(length(unique(tmp$ffcolname)) < nrow(tmp)){
+    warning("duplicate variable names - retaining longest label")
+    nc <- nchar(tmp$ffcolname)
+    tmp <- tmp[order(tmp$ffcolname, nc),]
+    tmp$n <- unlist(tapply(tmp$ffcolname,
+                           tmp$ffcolname,
+                           function(x) 1:length(x)))
+    tmp <- tmp[tmp$n == 1, ]
+    tmp <- tmp[, 1:2]
+  }
+  rownames(tmp) <- tmp$ffcolname
+  tmp2 <- tmp$fflabel
+  names(tmp2) <- tmp$ffcolname
+  return(tmp2)
+}
+
 
