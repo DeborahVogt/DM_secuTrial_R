@@ -4,7 +4,10 @@
 \alias{load.study.options}
 \title{List specifying the general properties of all tables in the export.}
 \usage{
-load.study.options()
+load.study.options(data.dir)
+}
+\arguments{
+\item{data.dir}{location of the export directory (or zip file) containing the csv/xls files}
 }
 \description{
 The list \code{study.options} stores all relevant technical information
