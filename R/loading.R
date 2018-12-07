@@ -119,7 +119,9 @@ load.study.options <- function(data.dir) {
   if(is.zip){
     files <- unzip(data.dir, list=T)
     w <- grepl("ExportOptions", files$Name)
-    parsed.export <- readLines(unz(data.dir, files$Name[w]))
+    con <- unz(data.dir, files$Name[w])
+    parsed.export <- readLines(con)
+    close(con)
   } else {
     files <- data.frame(Names = list.files(data.dir))
     w <- grepl("ExportOptions", files$Name)
@@ -152,7 +154,11 @@ load.study.options <- function(data.dir) {
   meta_names$cl <- "cl"
 
   # sep ----
-  if(is.zip) line1 <- readLines(unz(data.dir, files$Name[!grepl("html$", files$Name)][1]), 1)
+  if(is.zip){
+    con <- unz(data.dir, files$Name[!grepl("html$", files$Name)][1])
+    line1 <- readLines(con, 1)
+    close(con)
+  }
   if(!is.zip) line1 <- readLines(file.path(data.dir, files$Name[!grepl("html$", files$Name)][1]), 1)
   if (grepl(",", line1)) {
     sep <- ","
@@ -534,11 +540,13 @@ load.tables <- function(data.dir,
 load.labels <- function(){
   if(!exists("study.options")) stop("'study.options' not found \nrun load.study.options(...) or load.tables(...)")
   if(study.options$is.zip){
-    tmp <- read.table(unz(study.options$data.dir,
-                          .constructmetaname("items")),
+    con <- unz(study.options$data.dir,
+               .constructmetaname("items"))
+    tmp <- read.table(con,
                       sep = study.options$sep,
                       na.strings = study.options$na.strings,
                       header = TRUE)
+    close(con)
 
   } else {
     tmp <- read.table(file.path(study.options$data.dir,
