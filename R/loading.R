@@ -1,9 +1,9 @@
 ## Initilise study.options in GlobalEnv
 ##
 ## Upon package attachment these two lists are initialised in GlobalEnv.
-.onAttach <- function(libname, pkgname) {
-  load.study.options()
-}
+# .onAttach <- function(libname, pkgname) {
+#   load.study.options()
+# }
 
 
 
@@ -57,7 +57,7 @@ read.DB.table <- function(path, convert.dates=FALSE, convert.unknown.date.to.na=
     }
     )
   }
-  ## in eralier secuTrial exports there was a last/empty column "X" -> remove it
+  ## in earlier secuTrial exports there was a last/empty column "X" -> remove it
   if("X" %in% names(tab)) {
     tab <- tab[,-ncol(tab)]
   }
@@ -101,6 +101,8 @@ read.DB.table <- function(path, convert.dates=FALSE, convert.unknown.date.to.na=
 #' in order to be able to correctly load the tables of a given study.
 #' The list is used in the function \code{read.DB.table}.
 #'
+#' @param data.dir location of the export directory (or zip file) containing the csv/xls files
+#'
 #' @details \code{partial.date.handling}: By default, potential data columns containing entries that cannot be converted are
 #' skipped (option 'skip'). With 'force.conversion' fields incompatible with the date format are converted to NA.
 #' 'fill.partial.dates' keeps the orginal column untouched and adds a new column to the data frame with the name <colname>.partial.dates.processed
@@ -108,13 +110,102 @@ read.DB.table <- function(path, convert.dates=FALSE, convert.unknown.date.to.na=
 #' With 'fill.partial.dates.and.keep.original' partial dates are processed directly and the original data is copied to <colname>.original.
 #' @export
 #' @seealso read.DB.table, convert.all.dates
-load.study.options <- function() {
-  study.options <- list(sep='\t',
-                        date.format=c("%Y%m%d", "%Y-%m-%d"),
-                        na.strings = c("NA",""), # if blanks mean missing
-                        unknown.date.string = NULL, # incomplete dates
-                        partial.date.string = "",
-                        partial.date.handling = "fill.partial.dates.and.keep.original")
+
+load.study.options <- function(data.dir) {
+
+  is.zip <- grepl(".zip$", data.dir)
+
+  # shortnames
+  if(is.zip){
+    files <- unzip(data.dir, list=T)
+    w <- grepl("ExportOptions", files$Name)
+    con <- unz(data.dir, files$Name[w])
+    parsed.export <- readLines(con)
+    close(con)
+  } else {
+    files <- data.frame(Names = list.files(data.dir))
+    w <- grepl("ExportOptions", files$Name)
+    parsed.export <- readLines(file.path(data.dir, files$Name[w]))
+  }
+  end <- gsub("ExportOptions|.html", "", files$Name[w])
+  ext <- unique(sapply(strsplit(files$Name[-w], ".", fixed = TRUE), function(x) x[2]))
+  shortnames <- any(grepl("Shorten", parsed.export))
+  # TODO : German for shorten?
+
+  # metadata file names
+  meta_names <- list()
+  if(shortnames){
+    meta_names$forms <- "fs"
+    meta_names$casenodes <- "cn"
+    meta_names$centres <- "ctr"
+    meta_names$items <- "is"
+    meta_names$questions <- "qs"
+    meta_names$visitplan <- "vp"
+    meta_names$visitplanforms <- "vpfs"
+  } else {
+    meta_names$forms <- "forms"
+    meta_names$casenodes <- "casenodes"
+    meta_names$centres <- "centres"
+    meta_names$items <- "items"
+    meta_names$questions <- "questions"
+    meta_names$visitplan <- "visitplan"
+    meta_names$visitplanforms <- "visitplanforms"
+  }
+  meta_names$cl <- "cl"
+
+  # sep ----
+  if(is.zip){
+    con <- unz(data.dir, files$Name[!grepl("html$", files$Name)][1])
+    line1 <- readLines(con, 1)
+    close(con)
+  }
+  if(!is.zip) line1 <- readLines(file.path(data.dir, files$Name[!grepl("html$", files$Name)][1]), 1)
+  if (grepl(",", line1)) {
+    sep <- ","
+  } else if (grepl("'", line1)) {
+    sep <- "'"
+  } else if (grepl(";", line1)) {
+    sep <- ";"
+  } else if (grepl("\\t", line1)) {
+    sep <- "\t"
+  } else if (grepl("@", line1)) {
+    sep <- "@"
+  } else {
+    stop("Unknown Field Separator")
+    return(NULL)
+  }
+
+  # NA strings
+  na.strings <- c("NA","")
+  # TODO : custom formats? parsed from ExportOptions?
+
+  # dates ----
+  # date format
+  date.format <- c("%Y%m%d", "%Y-%m-%d")
+  # TODO : custom formats? parsed from ExportOptions?
+
+  # unknown date strings
+  unknown.date.string <- NULL
+  # TODO : custom formats? parsed from ExportOptions?
+
+  # partial dates
+  partial.date.string <- ""
+  partial.date.handling <- "fill.partial.dates.and.keep.original"
+
+  # return object
+  study.options <- list(sep=sep,
+                        date.format = date.format,
+                        na.strings = na.strings, # if blanks mean missing
+                        unknown.date.string = unknown.date.string, # incomplete dates
+                        partial.date.string = partial.date.string,
+                        partial.date.handling = partial.date.handling,
+                        shortnames = shortnames,
+                        is.zip = is.zip,
+                        meta_names = meta_names,
+                        files = files$Name,
+                        file.end = end,
+                        extension = ext,
+                        data.dir = data.dir)
   assign("study.options", study.options, envir = .GlobalEnv)
   return(NULL)
 }
@@ -181,9 +272,10 @@ load.tables <- function(data.dir,
         return(NULL)
   }
 
+  load.study.options(data.dir)
+
   ## handle loading from zip
-  is.zip <- FALSE
-  if(substr(data.dir, nchar(data.dir)-2, nchar(data.dir)) == "zip") is.zip <- TRUE
+  is.zip <- study.options$is.zip
 
   #######################################################
   ## Check if neccessary items are included in export  ##
@@ -314,11 +406,7 @@ load.tables <- function(data.dir,
         }
         # Get the names of the table.list
         if(silent==FALSE) cat("** Building the 'table.list'\n")
-        if(is.zip) {
-          table.list <- unzip(data.dir, list=TRUE)$Name
-        } else {
-          table.list <- list.files(data.dir)
-        }
+        table.list <- study.options$files
         # ExportOptions.html are not a dataframe
         table.list <- table.list[which(table.list!="ExportOptions.html")]
         assign("table.list", table.list, envir=.GlobalEnv)
@@ -342,45 +430,36 @@ load.tables <- function(data.dir,
         ## Add xls or csv version of patient and center tables
         if ((length(grep("CSV format",parsed.export))!=0 | length(grep("CSV-Format",parsed.export))!=0 ) & length(grep("MS Excel",parsed.export))!=0) {
               if(add.pat.id == TRUE & add.center == TRUE) {
-                  tables <- c("ctr.xls", "cn.xls", tables)
+                  tables <- c(.constructmetaname("centres"),
+                              .constructmetaname("casenodes"),
+                              tables)
                   tables <- tables[!duplicated(tables)]
                   if(silent==FALSE) cat("*** Added ctr.xls and cn.xls to tables\n")
               }
               if(add.pat.id == TRUE & add.center == FALSE) {
-                  tables <- c("cn.xls", tables)
+                  tables <- c(.constructmetaname("casenodes"), tables)
                   tables <- tables[!duplicated(tables)]
                   if(silent==FALSE) cat("*** Added cn.xls to tables\n")
               }
         } else if ((length(grep("CSV format",parsed.export))!=0 | length(grep("CSV-Format",parsed.export))!=0)  & length(grep("MS Excel",parsed.export))==0) {
               if(add.pat.id == TRUE & add.center == TRUE) {
-                  tables <- c("ctr.csv", "cn.csv", tables)
+                tables <- c(.constructmetaname("centres"),
+                            .constructmetaname("casenodes"),
+                            tables)
                   tables <- tables[!duplicated(tables)]
                   if(silent==FALSE) cat("*** Added ctr.csv and cn.csv to tables\n")
               }
               if(add.pat.id == TRUE & add.center == FALSE) {
-                  tables <- c("cn.csv", tables)
+                tables <- c(.constructmetaname("casenodes"), tables)
+                tables <- tables[!duplicated(tables)]
                   tables <- tables[!duplicated(tables)]
                   if(silent==FALSE) cat("*** Added cn.csv to tables\n")
               }
               ## Get info on Field separator and edit study.options
               if(silent==FALSE) cat("*** Parsing ExportOptions.html for csv separator\n")
-              parsed.sep <- parsed.export[grep("Field separated with",parsed.export)||grep("Feld getrennt mit",parsed.export)]
-              if (length(grep("Komma",parsed.sep))!=0) {
-                  study.options$sep <- ","
-              } else if (length(grep("'",parsed.sep))!=0) {
-                  study.options$sep <- "'"
-              } else if (length(grep("Semikolon",parsed.sep))!=0) {
-                  study.options$sep <- ";"
-              } else if (length(grep("Tabulator",parsed.sep))!=0) {
-                  study.options$sep <- "\t"
-              } else if (length(grep("@",parsed.sep))!=0) {
-                  study.options$sep <- "@"
-              } else {
-                  stop("Unknown Field Separator in ExportOptions.html")
-                  return(NULL)
-              }
+              study.options$sep
               if(silent==FALSE) cat(paste0("*** CSV separator identified: '",study.options$sep,"'\n"))
-              assign("study.options",study.options, envir = .GlobalEnv)
+
         } else {
             stop("ExportOptions.html does not include information on export Format (.xls or .csv)")
             return(NULL)
@@ -403,13 +482,16 @@ load.tables <- function(data.dir,
                 }
             }
             ## Make sure that 'ctr' and 'cn' are loaded as 'center' and 'patient'
+            t <- gsub(study.options$file.end, "", t) # shorten the names
+            t <- .removeproj(t) # shorten the names
             if (t=="ctr") {
                 t2 <- "center"
-            } else if (t=="cn") {
+            } else if (t %in% c("cn", "casenodes")) {
                 t2 <- "patient"
             } else {
                 t2 <- t
             }
+
             ## Finally load the table
             if(silent==FALSE) cat("--- table",table.filename,"loaded as",t2,"---\n")
         assign(t2, read.DB.table(path.or.zip, convert.dates, convert.unknown.date.to.na, rename.headers,
@@ -418,4 +500,80 @@ load.tables <- function(data.dir,
     }
   }
 }
+
+
+
+
+
+# Two hidden accessory functions
+# construct names of metadata tables from study.options object
+.constructmetaname <- function(x){
+  paste0(study.options$meta_names[x],
+         study.options$file.end,
+         ".",
+         study.options$extension)
+}
+# remove project name (mnpXYZ_) from whatever
+.removeproj <- function(x){
+  e <- grepl("^e", x)
+  x <- gsub("mnp[[:alnum:]]{1,}_", "", x)
+  x <- gsub("^_", "", x)
+  x[e] <- gsub("^e", "e_", x[e])
+  x
+}
+
+
+#' Load labels from an export .
+#'
+#' Get a named vector of variable labels.
+#' Uses results of \code{load.study.options} directly - must be run after \code{load.tables} or \code{load.study.options}
+#' @examples
+#' ## non rectangular table
+#' load.study.options(data.dir=system.file("extdata", "s_export_CSV-xls_DEM00_20180912-125720.zip", package = "secuTrial"))
+#' labs <- load.tables()
+#' labs[1]
+#' @export
+#' @seealso read.DB.table, load.table.list (used in dossier-specific packages), load.study.options
+#' @references http://stackoverflow.com/questions/3640925/global-variable-in-r-function
+#' @return (Pre-processed) tables in \code{tables} as data frames
+
+load.labels <- function(){
+  if(!exists("study.options")) stop("'study.options' not found \nrun load.study.options(...) or load.tables(...)")
+  if(study.options$is.zip){
+    con <- unz(study.options$data.dir,
+               .constructmetaname("items"))
+    tmp <- read.table(con,
+                      sep = study.options$sep,
+                      na.strings = study.options$na.strings,
+                      header = TRUE)
+    close(con)
+
+  } else {
+    tmp <- read.table(file.path(study.options$data.dir,
+                                .constructmetaname("items")),
+                      sep = study.options$sep,
+                      na.strings = study.options$na.strings,
+                      header = TRUE)
+  }
+  # remove layout dummies
+  tmp <- tmp[!is.na(tmp$ffcolname), ]
+  # unique variables
+  tmp <- unique(tmp[, c("ffcolname", "fflabel")])
+  # duplicates (different labels) - retain longest
+  if(length(unique(tmp$ffcolname)) < nrow(tmp)){
+    warning("duplicate variable names - retaining longest label")
+    nc <- nchar(tmp$ffcolname)
+    tmp <- tmp[order(tmp$ffcolname, nc),]
+    tmp$n <- unlist(tapply(tmp$ffcolname,
+                           tmp$ffcolname,
+                           function(x) 1:length(x)))
+    tmp <- tmp[tmp$n == 1, ]
+    tmp <- tmp[, 1:2]
+  }
+  rownames(tmp) <- tmp$ffcolname
+  tmp2 <- tmp$fflabel
+  names(tmp2) <- tmp$ffcolname
+  return(tmp2)
+}
+
 
