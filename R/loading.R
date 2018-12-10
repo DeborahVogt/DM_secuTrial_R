@@ -61,8 +61,8 @@ read.DB.table <- function(path, convert.dates=FALSE, convert.unknown.date.to.na=
   if("X" %in% names(tab)) {
     tab <- tab[,-ncol(tab)]
   }
-  if(rename.headers==TRUE) names(tab) <- new.names(tab)
-  if(add.pat.id==TRUE & "mnppid" %in% names(tab)) {
+  if(rename.headers) names(tab) <- new.names(tab)
+  if(add.pat.id & "mnppid" %in% names(tab)) {
      ## In order to be able to translate mnppid to mnpaid the casenode table is required
      ## This table is loaded first to enable the translations of the other table
      ## The casenode table or any other table that already has an mnpaid must not pass add.pat.id()
@@ -73,7 +73,7 @@ read.DB.table <- function(path, convert.dates=FALSE, convert.unknown.date.to.na=
        tab <- move.column.after(tab, "pat.id", "first")
      }
   }
-  if(add.center==TRUE & "mnppid" %in% names(tab))  {
+  if(add.center & "mnppid" %in% names(tab))  {
      if (!("mnpaid" %in% names(tab))) tab <- add.center(tab)
      else if ("mnpctrname" %in% names(tab))  {
        ## Since the introduction of the flag "Duplicate form meta data into all tables"
@@ -84,7 +84,7 @@ read.DB.table <- function(path, convert.dates=FALSE, convert.unknown.date.to.na=
        tab$center <- as.factor(unlist(lapply(tab$center, remove.center.tag)))
      }
   }
-  if(convert.dates==TRUE) {
+  if(convert.dates) {
     ## iterate of multiple date types
     for(date.format in study.options$date.format) {
     tab <- convert.all.dates(tab, date.format, convert.unknown.date.to.na, unknown.date.string=study.options$unknown.date.string, partial.date.handling=study.options$partial.date.handling, partial.date.string=study.options$partial.date.string, silent)
@@ -343,7 +343,7 @@ load.tables <- function(data.dir,
       #names(rtdata_internal) <- gsub(x=names(rtdata_internal), pattern="^v", replacement="")
     }
     ## rtdata is a global variable
-    if (silent==FALSE) {
+    if (!silent) {
       cat("--- rectangular data written into variable rtdata ---\n")
     }
     rtdata <<- rtdata_internal
@@ -354,29 +354,29 @@ load.tables <- function(data.dir,
 
     ## Make sure that ExportOptions.html uses english
     ## TODO: Support German customer area!
-    ##if(silent==FALSE) cat("** Checking Language of ExportOptions.html\n")
+    ##if(!silent) cat("** Checking Language of ExportOptions.html\n")
     ##if (length(grep("Created on",parsed.export))==0) {
     ##    warning("ExportOptions.html is written in other language than English. Automatic reading of csv separator might not be possible... In case you run into trouble, please contact a Data Manager to set the Customer area to English.\n", immediate.=TRUE)
-    ##} else if (silent==FALSE) {
+    ##} else if (!silent) {
     ##   cat("** ExportOptions.html is in English\n")
     ##}
 
     ## Make sure that column names are included in Export!
-    if(silent==FALSE) cat("** Checking for 'Column names' in ExportOptions.html'\n")
+    if(!silent) cat("** Checking for 'Column names' in ExportOptions.html'\n")
     if (length(grep("Column names",parsed.export))==0 & length(grep("Spaltennamen",parsed.export))==0) {
         stop("The secuTrial export does not include 'Column names'")
         return(NULL)
-    } else if (silent==FALSE) {
+    } else if (!silent) {
         cat("** 'Column names' ('Spaltennamen') was found in ExportOptions.html\n")
     }
 
     ## Make sure that Add-ID/Zus-ID is included in export
-    if (add.pat.id == TRUE) {
-        if(silent==FALSE) cat("** Checking for 'Add-ID' in ExportOptions.html\n")
+    if (add.pat.id) {
+        if(!silent) cat("** Checking for 'Add-ID' in ExportOptions.html\n")
         if (length(grep("Add-ID",parsed.export))==0 & length(grep("Zus-ID",parsed.export))==0 & length(grep("Patient-ID",parsed.export))==0)  {
             stop("The secuTrial export does not include 'Add-ID'")
             return(NULL)
-        } else if (silent==FALSE) {
+        } else if (!silent) {
             cat("** 'Add-ID' ('Zus-ID', 'Patient-ID') was found in ExportOptions.html\n")
         }
     }
@@ -388,21 +388,21 @@ load.tables <- function(data.dir,
     ##################################################################
 
     if(is.null(tables)) {
-        if(silent==FALSE) cat("** Loading tables with 'table.list' (probably defined in dossier library\n")
+        if(!silent) cat("** Loading tables with 'table.list' (probably defined in dossier library\n")
         tables <- names(table.list)
         ## ensure that patient and center table are loaded first
         ## (needed to add pat.id and center to all tables)
-        if(add.pat.id == TRUE & add.center == TRUE) {
+        if(add.pat.id & add.center) {
             tables <- c("patient", "center", tables)
             tables <- tables[!duplicated(tables)]
         }
-        if(add.pat.id == TRUE & add.center == FALSE) {
+        if(add.pat.id & !add.center) {
             tables <- c("patient", tables)
             tables <- tables[!duplicated(tables)]
         }
         for(t in tables) {
             table.filename <- eval(parse(text=paste("table.list$",t,"$filename",sep="")))
-            if(silent==FALSE) cat("--- table",table.filename,"loaded as",t,"---\n")
+            if(!silent) cat("--- table",table.filename,"loaded as",t,"---\n")
             path.or.zip <- file.path(data.dir,table.filename)
             if(is.zip) {
                 path.or.zip <- unz(data.dir, table.filename)
@@ -413,24 +413,24 @@ load.tables <- function(data.dir,
         ###################################################
         ## IF tables = TRUE Load all tables in data.dir  ##
         ###################################################
-        if(silent==FALSE) cat(paste0("** Loading all tables from ",data.dir,"\n"))
+        if(!silent) cat(paste0("** Loading all tables from ",data.dir,"\n"))
         ## Throw warning if table.list exists
-        if(silent==FALSE) cat("** Ensuring that no 'table.list' was set by user\n")
+        if(!silent) cat("** Ensuring that no 'table.list' was set by user\n")
         if (exists("table.list")) {
             warning("previously defined 'table.list' (possibly from dossier library) was written over!\n")
             remove("table.list", envir = .GlobalEnv)
-                  if(silent==FALSE) cat("--- Deleting previous 'table.list'\n")
+                  if(!silent) cat("--- Deleting previous 'table.list'\n")
         } else {
-            if(silent==FALSE) cat("** No 'table.list' found\n")
+            if(!silent) cat("** No 'table.list' found\n")
         }
         # Get the names of the table.list
-        if(silent==FALSE) cat("** Building the 'table.list'\n")
+        if(!silent) cat("** Building the 'table.list'\n")
         table.list <- study.options$files
         # ExportOptions.html are not a dataframe
         table.list <- table.list[which(table.list!="ExportOptions.html")]
         assign("table.list", table.list, envir=.GlobalEnv)
-        if(silent==FALSE) cat(paste0("*** ",length(table.list)," tables were found\n"))
-        if(silent==FALSE) cat("** Calling load.tables(data.dir, tables = table.list, ...)\n")
+        if(!silent) cat(paste0("*** ",length(table.list)," tables were found\n"))
+        if(!silent) cat("** Calling load.tables(data.dir, tables = table.list, ...)\n")
         load.tables(data.dir,
                     table.list,
                     convert.dates,
@@ -443,41 +443,41 @@ load.tables <- function(data.dir,
         ################################################
         ## ELSE Load tables from input list 'tables'  ##
         ################################################
-        if(silent==FALSE) cat("** Loading tables as defined in input tables = ... \n")
+        if(!silent) cat("** Loading tables as defined in input tables = ... \n")
         ## ensure that patient and center table are loaded first
         ## (needed to add pat.id and center to all tables)
         ## Add xls or csv version of patient and center tables
         if ((length(grep("CSV format",parsed.export))!=0 | length(grep("CSV-Format",parsed.export))!=0 ) & length(grep("MS Excel",parsed.export))!=0) {
-              if(add.pat.id == TRUE & add.center == TRUE) {
+              if(add.pat.id & add.center) {
                   tables <- c(.constructmetaname("centres"),
                               .constructmetaname("casenodes"),
                               tables)
                   tables <- tables[!duplicated(tables)]
-                  if(silent==FALSE) cat("*** Added ctr.xls and cn.xls to tables\n")
+                  if(!silent) cat("*** Added ctr.xls and cn.xls to tables\n")
               }
-              if(add.pat.id == TRUE & add.center == FALSE) {
+              if(add.pat.id & !add.center) {
                   tables <- c(.constructmetaname("casenodes"), tables)
                   tables <- tables[!duplicated(tables)]
-                  if(silent==FALSE) cat("*** Added cn.xls to tables\n")
+                  if(!silent) cat("*** Added cn.xls to tables\n")
               }
         } else if ((length(grep("CSV format",parsed.export))!=0 | length(grep("CSV-Format",parsed.export))!=0)  & length(grep("MS Excel",parsed.export))==0) {
-              if(add.pat.id == TRUE & add.center == TRUE) {
+              if(add.pat.id & add.center) {
                 tables <- c(.constructmetaname("centres"),
                             .constructmetaname("casenodes"),
                             tables)
                   tables <- tables[!duplicated(tables)]
-                  if(silent==FALSE) cat("*** Added ctr.csv and cn.csv to tables\n")
+                  if(!silent) cat("*** Added ctr.csv and cn.csv to tables\n")
               }
-              if(add.pat.id == TRUE & add.center == FALSE) {
+              if(add.pat.id & !add.center) {
                 tables <- c(.constructmetaname("casenodes"), tables)
                 tables <- tables[!duplicated(tables)]
                   tables <- tables[!duplicated(tables)]
-                  if(silent==FALSE) cat("*** Added cn.csv to tables\n")
+                  if(!silent) cat("*** Added cn.csv to tables\n")
               }
               ## Get info on Field separator and edit study.options
-              if(silent==FALSE) cat("*** Parsing ExportOptions.html for csv separator\n")
+              if(!silent) cat("*** Parsing ExportOptions.html for csv separator\n")
               study.options$sep
-              if(silent==FALSE) cat(paste0("*** CSV separator identified: '",study.options$sep,"'\n"))
+              if(!silent) cat(paste0("*** CSV separator identified: '",study.options$sep,"'\n"))
 
         } else {
             stop("ExportOptions.html does not include information on export Format (.xls or .csv)")
@@ -512,7 +512,7 @@ load.tables <- function(data.dir,
             }
 
             ## Finally load the table
-            if(silent==FALSE) cat("--- table",table.filename,"loaded as",t2,"---\n")
+            if(!silent) cat("--- table",table.filename,"loaded as",t2,"---\n")
         assign(t2, read.DB.table(path.or.zip, convert.dates, convert.unknown.date.to.na, rename.headers,
                                  add.pat.id, add.center, silent), envir = .GlobalEnv)
       }
