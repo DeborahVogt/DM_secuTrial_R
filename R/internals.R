@@ -58,3 +58,38 @@
 
 
 
+# create factors
+.factorize <- function(x, ...) UseMethod(".factorize", x)
+
+# data.frame method
+.factorize.data.frame <- function(data){
+  if(exists("cl", envir = .GlobalEnv)){
+    warning("cl found in wd... ")
+    if(all(names(cl) == c("column", "code", "value"))){
+      warning("format appears to be suitable")
+    } else {
+      warning("format appears to be incorrect... reloading")
+      cl <- .load.meta.table("cl")
+    }
+  } else {
+    cl <- .load.meta.table("cl")
+  }
+  if(!is.character(cl$column)) cl$column <- as.character(cl$column)
+
+  str <- strsplit(cl$column, ".", fixed = TRUE)
+  str <- sapply(str, function(x) x[2])
+  cl$var <- str
+
+  for(i in names(data)[names(data) %in% cl$var]){
+    lookup <- cl[which(cl$var == i), c("code", "value")]
+    data[, paste0(i, ".factor")] <- .factorize(data[, i], lookup)
+  }
+  return(data)
+}
+
+# integer method
+.factorize.integer <- function(data, lookup){
+  factor(data, lookup$code, lookup$value)
+}
+
+
