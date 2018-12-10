@@ -2,6 +2,7 @@
 
 export(add.center)
 export(add.pat.id)
+export(add.visit.name)
 export(convert.all.dates)
 export(days.of.month)
 export(fill.partial.date)

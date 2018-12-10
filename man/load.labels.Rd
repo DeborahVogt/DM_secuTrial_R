@@ -16,7 +16,7 @@ Uses results of \code{load.study.options} directly - must be run after \code{loa
 \examples{
 ## non rectangular table
 load.study.options(data.dir=system.file("extdata", "s_export_CSV-xls_DEM00_20180912-125720.zip", package = "secuTrial"))
-labs <- load.tables()
+labs <- load.labels()
 labs[1]
 }
 \references{
