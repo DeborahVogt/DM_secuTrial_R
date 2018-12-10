@@ -30,7 +30,9 @@ library(secuTrial)
 ## Loading data from a rectangular export
 
 ```{r}
-load.tables(data.dir=system.file("extdata", "s_export_rt-CSV-xls_DEM00_20181016-151332.zip", package = "secuTrial"), 
+load.tables(data.dir=system.file("extdata", 
+                                 "s_export_rt-CSV-xls_DEM00_20181016-151332.zip", 
+                                 package = "secuTrial"), 
             is.rt = T, 
             decode.rt.visitlabels = T)
 ```
@@ -40,7 +42,10 @@ Furthermore, the visitlabels are automatically translated if *decode.rt.visitlab
 
 ## Loading data from a non-rectangular export
 ```{r}
-load.tables(data.dir=system.file("extdata", "s_export_CSV-xls_DEM00_20180912-125720.zip", package = "secuTrial"), tables=c("bmd.xls"))
+load.tables(data.dir=system.file("extdata", 
+                                 "s_export_CSV-xls_DEM00_20180912-125720.zip", 
+                                 package = "secuTrial"),
+            tables=c("bmd.xls","ctr.xls"))
 ```
 
 The above command reads export tables into R variables. The central table in this case is *bmd* which contains the form data of the bone mineral density
@@ -52,7 +57,9 @@ dataset. The *tables* argument has been set to prevent loading of all tables.
 bmd_subset <- bmd[,c("pat.id","mnpvispdt","age","grouping","bmd")]
 names(bmd_subset)
 # position "grouping" and "bmd" behind "mnpvispdt"
-bmd_subset_moved_1 <- move.column.after(df=bmd_subset,col.name=c("grouping","bmd"),"mnpvispdt")
+bmd_subset_moved_1 <- move.column.after(df=bmd_subset,
+                                        col.name=c("grouping","bmd"),
+                                        "mnpvispdt")
 names(bmd_subset_moved_1)
 # position "age" back to position 3 with "move.column.to.pos"
 bmd_subset_moved_2 <- move.column.to.pos(df=bmd_subset_moved_1,col.idx=5,new.col.idx=3)
@@ -86,44 +93,3 @@ length(names(bmd))
 length(names(bmd_with_center_col))
 ```
 
-## Vignette Info
-
-Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
-
-## Styles
-
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
-
-    output: 
-      rmarkdown::html_vignette:
-        css: mystyles.css
-
-## Figures
-
-The figure sizes have been customised so that you can easily put two images side-by-side. 
-
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
-```
-
-You can enable figure captions by `fig_caption: yes` in YAML:
-
-    output:
-      rmarkdown::html_vignette:
-        fig_caption: yes
-
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
-
-## More Examples
-
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
-
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
-```
-
-Also a quote using `>`:
-
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
