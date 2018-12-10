@@ -604,7 +604,7 @@ add.visit.name <- function(data){
   names(visits)[2] <- "visit.name"
   # merge with data
   tmp <- merge(data, visits)
-  tmp <- move.column.after(tmp, "visit.name", "mnpvisid")
+  tmp <- move.column.after(tmp, c("visit.name", "mnpvisid"), "mnppid")
   return(tmp)
 }
 
