@@ -331,8 +331,9 @@ load.tables <- function(data.dir,
     rtdata_internal <- read.csv(file=rtdata_con, header=T, sep="\t")
 
     if (decode.rt.visitlabels) {
-      vp_con <- unz(data.dir, filename=files_in_zip$Name[grep("vp",files_in_zip$Name)])
-      vp <- read.csv(file=vp_con, header=T, sep="\t")
+      # vp_con <- unz(data.dir, filename=files_in_zip$Name[grep("vp",files_in_zip$Name)])
+      # vp <- read.csv(file=vp_con, header=T, sep="\t")
+      vp <- .load.meta.table("visitplan")
       ## clean out spaces and other common disturbing characters
       vp$mnpvislabel <- gsub("\\s+", "_", vp$mnpvislabel)
       vp$mnpvislabel <- gsub("\\.", "", vp$mnpvislabel)
