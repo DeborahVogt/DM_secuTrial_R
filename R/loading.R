@@ -153,6 +153,24 @@ load.study.options <- function(data.dir) {
   }
   meta_names$cl <- "cl"
 
+  # available metadata
+  .constructmetaname <- function(x){
+    paste0(meta_names[x],
+           end,
+           ".",
+           ext)
+  }
+  meta_available <- list()
+  meta_available$forms <- .constructmetaname("forms") %in% files$Name
+  meta_available$casenodes <- .constructmetaname("casenodes") %in% files$Name
+  meta_available$centres <- .constructmetaname("centres") %in% files$Name
+  meta_available$items <- .constructmetaname("items") %in% files$Name
+  meta_available$questions <- .constructmetaname("questions") %in% files$Name
+  meta_available$visitplan <- .constructmetaname("visitplan") %in% files$Name
+  meta_available$visitplanforms <- .constructmetaname("visitplanforms") %in% files$Name
+  meta_available$cl <- .constructmetaname("cl") %in% files$Name
+
+
   # sep ----
   if(is.zip){
     con <- unz(data.dir, files$Name[!grepl("html$", files$Name)][1])
@@ -202,6 +220,7 @@ load.study.options <- function(data.dir) {
                         shortnames = shortnames,
                         is.zip = is.zip,
                         meta_names = meta_names,
+                        meta_available = meta_available,
                         files = files$Name,
                         file.end = end,
                         extension = ext,
