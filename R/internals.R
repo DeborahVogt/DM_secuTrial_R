@@ -24,23 +24,27 @@
 
 # load specified metadata table
 .load.meta.table <- function(metatable){
-  if(study.options$is.zip){
-    con <- unz(study.options$data.dir,
-               .constructmetaname(metatable))
-    tmp <- read.table(con,
-                      sep = study.options$sep,
-                      na.strings = study.options$na.strings,
-                      header = TRUE)
-    close(con)
+  if(.available(metatable)){
+    if(study.options$is.zip){
+      con <- unz(study.options$data.dir,
+                 .constructmetaname(metatable))
+      tmp <- read.table(con,
+                        sep = study.options$sep,
+                        na.strings = study.options$na.strings,
+                        header = TRUE)
+      close(con)
 
+    } else {
+      tmp <- read.table(file.path(study.options$data.dir,
+                                  .constructmetaname(metatable)),
+                        sep = study.options$sep,
+                        na.strings = study.options$na.strings,
+                        header = TRUE)
+    }
+    return(tmp)
   } else {
-    tmp <- read.table(file.path(study.options$data.dir,
-                                .constructmetaname(metatable)),
-                      sep = study.options$sep,
-                      na.strings = study.options$na.strings,
-                      header = TRUE)
+    stop("metadata table unavailable")
   }
-  return(tmp)
 }
 
 
