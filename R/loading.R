@@ -447,39 +447,47 @@ load.tables <- function(data.dir,
         ## ensure that patient and center table are loaded first
         ## (needed to add pat.id and center to all tables)
         ## Add xls or csv version of patient and center tables
-        if ((length(grep("CSV format",parsed.export))!=0 | length(grep("CSV-Format",parsed.export))!=0 ) & length(grep("MS Excel",parsed.export))!=0) {
-              if(add.pat.id & add.center) {
-                  tables <- c(.constructmetaname("centres"),
-                              .constructmetaname("casenodes"),
-                              tables)
-                  tables <- tables[!duplicated(tables)]
-                  if(!silent) cat("*** Added ctr.xls and cn.xls to tables\n")
-              }
-              if(add.pat.id & !add.center) {
-                  tables <- c(.constructmetaname("casenodes"), tables)
-                  tables <- tables[!duplicated(tables)]
-                  if(!silent) cat("*** Added cn.xls to tables\n")
-              }
-        } else if ((length(grep("CSV format",parsed.export))!=0 | length(grep("CSV-Format",parsed.export))!=0)  & length(grep("MS Excel",parsed.export))==0) {
-              if(add.pat.id & add.center) {
-                tables <- c(.constructmetaname("centres"),
-                            .constructmetaname("casenodes"),
-                            tables)
-                  tables <- tables[!duplicated(tables)]
-                  if(!silent) cat("*** Added ctr.csv and cn.csv to tables\n")
-              }
-              if(add.pat.id & !add.center) {
+        if(add.pat.id){
                 tables <- c(.constructmetaname("casenodes"), tables)
-                tables <- tables[!duplicated(tables)]
-                  tables <- tables[!duplicated(tables)]
-                  if(!silent) cat("*** Added cn.csv to tables\n")
-              }
-              ## Get info on Field separator and edit study.options
-              if(!silent) cat("*** Parsing ExportOptions.html for csv separator\n")
-              study.options$sep
-              if(!silent) cat(paste0("*** CSV separator identified: '",study.options$sep,"'\n"))
+        }
+        if(add.center){
+          tables <- c(.constructmetaname("centres"), tables)
+        }
 
-        } else {
+        # if (study.options$extension == "xls") {
+        #
+        #       if(add.pat.id & add.center) {
+        #           tables <- c(.constructmetaname("centres"),
+        #                       .constructmetaname("casenodes"),
+        #                       tables)
+        #           tables <- tables[!duplicated(tables)]
+        #           if(!silent) cat("*** Added ctr.xls and cn.xls to tables\n")
+        #       }
+        #       if(add.pat.id & !add.center) {
+        #           tables <- c(.constructmetaname("casenodes"), tables)
+        #           tables <- tables[!duplicated(tables)]
+        #           if(!silent) cat("*** Added cn.xls to tables\n")
+        #       }
+        # } else if (study.options$extension == "csv") {
+        #       if(add.pat.id & add.center) {
+        #         tables <- c(.constructmetaname("centres"),
+        #                     .constructmetaname("casenodes"),
+        #                     tables)
+        #           tables <- tables[!duplicated(tables)]
+        #           if(!silent) cat("*** Added ctr.csv and cn.csv to tables\n")
+        #       }
+        #       if(add.pat.id & !add.center) {
+        #         tables <- c(.constructmetaname("casenodes"), tables)
+        #         tables <- tables[!duplicated(tables)]
+        #           tables <- tables[!duplicated(tables)]
+        #           if(!silent) cat("*** Added cn.csv to tables\n")
+        #       }
+        #       ## Get info on Field separator and edit study.options
+        #       if(!silent) cat("*** Parsing ExportOptions.html for csv separator\n")
+        #       study.options$sep
+        #       if(!silent) cat(paste0("*** CSV separator identified: '",study.options$sep,"'\n"))
+
+        if(!study.options$extension %in% c("csv", "xls")) {
             stop("ExportOptions.html does not include information on export Format (.xls or .csv)")
             return(NULL)
         }
