@@ -28,6 +28,7 @@
     if(study.options$is.zip){
       con <- unz(study.options$data.dir,
                  .constructmetaname(metatable))
+      if(!isOpen(con)) open(con)
       tmp <- read.table(con,
                         sep = study.options$sep,
                         na.strings = study.options$na.strings,
