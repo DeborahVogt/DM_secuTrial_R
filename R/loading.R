@@ -579,3 +579,32 @@ load.labels <- function(){
 }
 
 
+
+#' add visit names to a table.
+#'
+#' Add the visit name to a table (as opposed to just the visit id - secuTrial uses many visit ids to refer to a single visit).
+#' Uses results of \code{load.study.options} directly - must be run after \code{load.tables} or \code{load.study.options}
+#' @param data data.frame to add visit name to
+#' @examples
+#' # TODO!!
+#' @export
+#' @seealso load.table, load.study.options
+#' @references http://stackoverflow.com/questions/3640925/global-variable-in-r-function
+#' @return data.frame with additional mnpvislabel variable for visit label
+
+add.visit.name <- function(data){
+  if(!exists("study.options")) stop("'study.options' not found \nrun load.study.options(...) or load.tables(...)")
+  if(!.available("items")) stop("'items' metadata not available \n    - suggest exporting 'Project setup' with data")
+  if(!"mnpvisid" %in% names(data)) stop("Visit ID not in this form")
+  # load meta data table
+  visits <- .load.meta.table("visitplan")
+  # only need two columns
+  visits <- visits[, c("mnpvisid", "mnpvislabel")]
+  # rename one to be more obvious
+  names(visits)[2] <- "visit.name"
+  # merge with data
+  tmp <- merge(data, visits)
+  tmp <- move.column.after(tmp, "visit.name", "mnpvisid")
+  return(tmp)
+}
+
