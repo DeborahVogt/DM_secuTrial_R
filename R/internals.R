@@ -51,7 +51,7 @@
 
 # query metadata availbility
 .available <- function(x){
-  study.options$meta_available[x]
+  unlist(study.options$meta_available[x])
 }
 
 
