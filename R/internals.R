@@ -45,6 +45,11 @@
 
 
 
+# query metadata availbility
+.available <- function(x){
+  study.options$meta_available[x]
+}
+
 
 
 
