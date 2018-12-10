@@ -340,7 +340,9 @@ load.tables <- function(data.dir,
       vp$mnpvislabel <- gsub("#", "", vp$mnpvislabel)
       ## decoding
       for(i in 1:length(vp$mnpvislabel)) {
-        names(rtdata_internal) <- gsub(x = names(rtdata_internal), pattern = vp$mnpvisid[i], replacement = vp$mnpvislabel[i])
+        names(rtdata_internal) <- gsub(x = names(rtdata_internal),
+                                       pattern = vp$mnpvisid[i],
+                                       replacement = vp$mnpvislabel[i])
       }
       ## remove leading v
       #names(rtdata_internal) <- gsub(x=names(rtdata_internal), pattern="^v", replacement="")
@@ -366,7 +368,8 @@ load.tables <- function(data.dir,
 
     ## Make sure that column names are included in Export!
     if(!silent) cat("** Checking for 'Column names' in ExportOptions.html'\n")
-    if (length(grep("Column names",parsed.export))==0 & length(grep("Spaltennamen",parsed.export))==0) {
+    if (length(grep("Column names",parsed.export))==0 &
+        length(grep("Spaltennamen",parsed.export))==0) {
         stop("The secuTrial export does not include 'Column names'")
         return(NULL)
     } else if (!silent) {
@@ -376,7 +379,9 @@ load.tables <- function(data.dir,
     ## Make sure that Add-ID/Zus-ID is included in export
     if (add.pat.id) {
         if(!silent) cat("** Checking for 'Add-ID' in ExportOptions.html\n")
-        if (length(grep("Add-ID",parsed.export))==0 & length(grep("Zus-ID",parsed.export))==0 & length(grep("Patient-ID",parsed.export))==0)  {
+        if (length(grep("Add-ID", parsed.export))==0 &
+            length(grep("Zus-ID", parsed.export))==0 &
+            length(grep("Patient-ID",parsed.export))==0)  {
             stop("The secuTrial export does not include 'Add-ID'")
             return(NULL)
         } else if (!silent) {
@@ -404,13 +409,20 @@ load.tables <- function(data.dir,
             tables <- tables[!duplicated(tables)]
         }
         for(t in tables) {
-            table.filename <- eval(parse(text=paste("table.list$",t,"$filename",sep="")))
-            if(!silent) cat("--- table",table.filename,"loaded as",t,"---\n")
-            path.or.zip <- file.path(data.dir,table.filename)
+            table.filename <- eval(parse(text = paste("table.list$", t , "$filename", sep="")))
+            if(!silent) cat("--- table", table.filename, "loaded as",t,"---\n")
+            path.or.zip <- file.path(data.dir, table.filename)
             if(is.zip) {
                 path.or.zip <- unz(data.dir, table.filename)
             }
-        assign(t, read.DB.table(path.or.zip, convert.dates, convert.unknown.date.to.na, rename.headers, add.pat.id, add.center, silent), envir = .GlobalEnv)
+        assign(t, read.DB.table(path.or.zip,
+                                convert.dates,
+                                convert.unknown.date.to.na,
+                                rename.headers,
+                                add.pat.id,
+                                add.center,
+                                silent),
+               envir = .GlobalEnv)
         }
     } else if (tables[1]=="all") {
         ##@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@##
