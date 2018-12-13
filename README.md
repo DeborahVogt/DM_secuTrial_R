@@ -10,4 +10,10 @@ devtools::install_github("SwissClinicalTrialOrganisation/DM_secuTrial_R")
 # load secuTrail R library
 library(secuTrial)
 ```
+## Testing with devtools
 
+``` R
+# assuming that your R session's working directory is DM_secuTrial_R
+# alternatively you can supply the fullpath to the package directory
+devtools::test(".")
+```
