@@ -117,7 +117,7 @@ load.study.options <- function(data.dir) {
 
   # shortnames
   if(is.zip){
-    files <- unzip(data.dir, list=T)
+    files <- unzip(data.dir, list=TRUE)
     w <- grepl("ExportOptions", files$Name)
     con <- unz(data.dir, files$Name[w])
     parsed.export <- readLines(con)
@@ -247,7 +247,7 @@ load.study.options <- function(data.dir) {
 #' load.tables(data.dir=system.file("extdata", "s_export_CSV-xls_DEM00_20180912-125720.zip", package = "secuTrial"))
 #' ## rectangular table
 #' load.tables(system.file("extdata", "s_export_rt-CSV-xls_DEM00_20181016-151332.zip", package = "secuTrial"),
-#'             is.rt = T, decode.rt.visitlabels = T)
+#'             is.rt = TRUE, decode.rt.visitlabels = TRUE)
 #' @export
 #' @seealso read.DB.table, load.table.list (used in dossier-specific packages), load.study.options
 #' @references http://stackoverflow.com/questions/3640925/global-variable-in-r-function
@@ -302,15 +302,15 @@ load.tables <- function(data.dir,
 
   if(is.rt) { ## rectangular input
     close(path.or.zip)
-    files_in_zip <- unzip(data.dir, list=T)
+    files_in_zip <- unzip(data.dir, list=TRUE)
 
     rtdata_con <- unz(data.dir, filename=files_in_zip$Name[grep("data",files_in_zip$Name)])
     ## rtdata_internal
-    rtdata_internal <- read.csv(file=rtdata_con, header=T, sep="\t")
+    rtdata_internal <- read.csv(file=rtdata_con, header=TRUE, sep="\t")
 
     if (decode.rt.visitlabels) {
       vp_con <- unz(data.dir, filename=files_in_zip$Name[grep("vp",files_in_zip$Name)])
-      vp <- read.csv(file=vp_con, header=T, sep="\t")
+      vp <- read.csv(file=vp_con, header=TRUE, sep="\t")
       ## clean out spaces and other common disturbing characters
       vp$mnpvislabel <- gsub("\\s+", "_", vp$mnpvislabel)
       vp$mnpvislabel <- gsub("\\.", "", vp$mnpvislabel)
