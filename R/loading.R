@@ -530,8 +530,6 @@ load.tables <- function(data.dir,
 #' @examples
 #' ## non rectangular table
 #' load.study.options(data.dir=system.file("extdata", "s_export_CSV-xls_DEM00_20180912-125720.zip", package = "secuTrial"))
-#' labs <- load.tables()
-#' labs[1]
 #' @export
 #' @seealso read.DB.table, load.table.list (used in dossier-specific packages), load.study.options
 #' @references http://stackoverflow.com/questions/3640925/global-variable-in-r-function
