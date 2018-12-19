@@ -18,6 +18,6 @@ Taken from the lava package
 \examples{
 trim("  test string trim  ")
 # "test string trim"
-trim("  test string trim  ", all=T)
+trim("  test string trim  ", all=TRUE)
 # "teststringtrim"
 }
