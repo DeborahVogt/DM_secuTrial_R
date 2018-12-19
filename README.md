@@ -1,4 +1,4 @@
-# The secuTrial R library
+# The secuTrial R library ![travis](https://travis-ci.com/SwissClinicalTrialOrganisation/DM_secuTrial_R.svg?branch=master)
 
 ## Installing with devtools
 
