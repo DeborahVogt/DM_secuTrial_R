@@ -37,7 +37,11 @@ convert.all.dates <- function(dat, .format="%Y-%m-%d", convert.unknown.date.to.n
     ## since multiple date formats may be check, skip if already converted to Date
     if (inherits(dat[[i]], "Date")) next
     ## handle error, e.g. Error in strptime(x, format, tz = "GMT"): input string is too long
-    possibleError <- tryCatch(x <- as.Date(as.character(dat[[i]]), format=.format), error = function(e) {warning(paste0("Column '", i, "': ", e, " Skipped..."))})
+    possibleError <- tryCatch(x <- as.Date(as.character(dat[[i]]),
+                                           format=.format),
+                              error = function(e) {
+                                warning(paste0("Column '", i, "': ", e, " Skipped..."))
+                                })
     if(inherits(possibleError, "error")) next
       ##x <- as.Date(as.character(dat[[i]]), format=.format)
     text.length <- as.numeric(sapply(as.character(dat[[i]])[!is.na(dat[[i]])],FUN=nchar))
