@@ -93,7 +93,7 @@ read.DB.table <- function(path, convert.dates=FALSE, convert.unknown.date.to.na=
   return(tab)
 }
 
-## ----------------------------------------------------------------------
+# STUDY OPTIONS ----
 
 #' List specifying the general properties of all tables in the export.
 #'
@@ -127,9 +127,17 @@ load.study.options <- function(data.dir) {
     w <- grepl("ExportOptions", files$Name)
     parsed.export <- readLines(file.path(data.dir, files$Name[w]))
   }
-  end <- gsub("ExportOptions|.html", "", files$Name[w])
-  ext <- unique(sapply(strsplit(files$Name[-w], ".", fixed = TRUE), function(x) x[2]))
+  version <- parsed.export[max(grep("secuTrial", parsed.export))]
+  version <- unlist(regmatches(version, gregexpr("[[:digit:]]\\.[[:digit:]]\\.[[:digit:]]\\.[[:digit:]]", version)))
   shortnames <- any(grepl("Shorten", parsed.export))
+  rt <- any(grepl("[rR]ect", parsed.export))
+  end <- gsub("ExportOptions|.html", "", files$Name[w])
+  if(rt & shortnames){
+    X <- files$Name[grepl(".xls$", files$Name)][1]
+    X <- gsub(".xls", "", X)
+    X <- .removeproj(X)
+  }
+  ext <- unique(sapply(strsplit(files$Name[-w], ".", fixed = TRUE), function(x) x[2]))
   # TODO : German for shorten?
 
   # metadata file names
@@ -222,14 +230,16 @@ load.study.options <- function(data.dir) {
                         partial.date.handling = partial.date.handling,
                         shortnames = shortnames,
                         is.zip = is.zip,
+                        is.rectangular = rt,
                         meta_names = meta_names,
                         meta_available = meta_available,
                         files = files$Name,
                         file.end = end,
                         extension = ext,
-                        data.dir = data.dir)
+                        data.dir = data.dir,
+                        secuTrial.version = version)
   assign("study.options", study.options, envir = .GlobalEnv)
-  return(NULL)
+  # return(NULL)
 }
 
 ## -----------------------------------------------fill.partial.dates.and.keep.original-----------------------
