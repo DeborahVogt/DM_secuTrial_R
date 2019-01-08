@@ -28,8 +28,10 @@
 #' @seealso load.study.options, new.names, convert.all.dates, unz
 read.DB.table <- function(path, convert.dates=FALSE, convert.unknown.date.to.na=FALSE, rename.headers=FALSE, add.pat.id=TRUE, add.center=TRUE, silent=FALSE, ...) {
   study.options <- get("study.options") # declare variable since defined in dossier lib
+
   ## assert that "study.options" exist
   if(!exists("study.options")) stop("The list 'study.options' must be defined.")
+
   ## file (not in zip)
   if(is.character(path)) {
     if(!file.exists(path)) {
@@ -50,13 +52,14 @@ read.DB.table <- function(path, convert.dates=FALSE, convert.unknown.date.to.na=
                         sep=study.options$sep,
                         fill=TRUE)
     }, error = function(e) {
-      print(paste0("File does not exist: ",e))
+      print(paste0("File (", path, ") does not exist: ",e))
       return(NULL)
     }
     , finally = {
     }
     )
   }
+
   ## in earlier secuTrial exports there was a last/empty column "X" -> remove it
   if("X" %in% names(tab)) {
     tab <- tab[,-ncol(tab)]
@@ -364,11 +367,13 @@ load.tables <- function(data.dir,
   ## rectangular input ----
   if(is.rt) {
     close(path.or.zip)
-    files_in_zip <- unzip(data.dir, list=T)
+    files_in_zip <- study.options$data.files
 
-    rtdata_con <- unz(data.dir, filename=files_in_zip$Name[grep("data",files_in_zip$Name)])
+    rtdata_con <- unz(data.dir, filename=files_in_zip[grep("data", files_in_zip)])
+    if(!isOpen(rtdata_con)) open(rtdata_con)
     ## rtdata_internal
     rtdata_internal <- read.csv(file=rtdata_con, header=T, sep="\t")
+    close(rtdata_con)
 
     if (decode.rt.visitlabels) {
       # vp_con <- unz(data.dir, filename=files_in_zip$Name[grep("vp",files_in_zip$Name)])
