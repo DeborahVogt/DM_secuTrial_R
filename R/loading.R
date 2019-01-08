@@ -365,7 +365,7 @@ load.tables <- function(data.dir,
   }
 
   ## rectangular input ----
-  if(is.rt) {
+  if(study.options$is.rectangular) {
     close(path.or.zip)
     files_in_zip <- study.options$data.files
 
