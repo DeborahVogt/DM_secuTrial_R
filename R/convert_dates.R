@@ -49,7 +49,7 @@ convert.all.dates <- function(dat, .format="%Y-%m-%d", convert.unknown.date.to.n
     ## FIXME: "Unknown." is used in the in the MS cohort as a placeholder which is a 7 digits string:
     ## To avoid that comment columns with a by change date entry are converted which check the
     ## overall string length. alternatively we may convert prior to all other steps "Unknown" (i.e. unknown.date.string to a generic generic placeholder "00" or "--"
-    if(!all(is.na(x)==TRUE) & (all(text.length<=10 & text.length>=4) | length(grep("Unknown", dat[[i]], fixed=T)) != 0)) {
+    if(!all(is.na(x)==TRUE) & (all(text.length<=10 & text.length>=4) | length(grep("Unknown", dat[[i]], fixed=TRUE)) != 0)) {
       ## identify 3-component-fields
       is.three.component.field <- FALSE
       date.string.length <- 8 + (nchar(.format) - 6)
