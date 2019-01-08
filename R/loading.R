@@ -228,9 +228,10 @@ load.study.options <- function(data.dir) {
   # partial dates
   partial.date.string <- ""
   partial.date.handling <- "fill.partial.dates.and.keep.original"
+  # TODO : parsed from ExportOptions?
 
   # IDs
-
+  # TODO : parsed from ExportOptions?
 
   # return object ----
   study.options <- list(sep=sep,
@@ -245,10 +246,12 @@ load.study.options <- function(data.dir) {
                         meta_names = meta_names,
                         meta_available = meta_available,
                         files = files$Name,
+                        data.files = files$Name[!grepl(".html$", files$Name)],
                         file.end = end,
                         extension = ext,
                         data.dir = data.dir,
                         secuTrial.version = version)
+  class(study.options) <- "secutrialoptions"
   assign("study.options", study.options, envir = .GlobalEnv)
   # return(NULL)
 }
