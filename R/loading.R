@@ -233,6 +233,21 @@ load.study.options <- function(data.dir) {
   # IDs
   # TODO : parsed from ExportOptions?
 
+  # filenames
+  datafiles <- files$Name[!grepl(".html$", files$Name)]
+  datanames <- .removeproj(datafiles)
+  datanames <- gsub(end, "", datanames)
+  datanames <- gsub(paste0("\\.", ext), "", datanames)
+  names(datanames) <- datafiles
+  if ("ctr" %in% datanames) {
+    w <- which(datanames == "ctr")
+    datanames[w] <- "center"
+  }
+  if (any(c("cn", "casenodes") %in% datanames)) {
+    w <- which(datanames %in% c("cn", "casenodes"))
+    datanames[w] <- "patient"
+  }
+
   # return object ----
   study.options <- list(sep=sep,
                         date.format = date.format,
@@ -246,7 +261,8 @@ load.study.options <- function(data.dir) {
                         meta_names = meta_names,
                         meta_available = meta_available,
                         files = files$Name,
-                        data.files = files$Name[!grepl(".html$", files$Name)],
+                        data.files = datafiles,
+                        data.names = datanames,
                         file.end = end,
                         extension = ext,
                         data.dir = data.dir,
@@ -501,7 +517,7 @@ load.tables <- function(data.dir,
       for(t in tables) {
             table.filename <- t
             ## For userfriendlieness, strip common endings like .xls or .csv
-            t <- gsub(paste0("\\.", study.options$extension), "", t)
+            # t <- gsub(paste0("\\.", study.options$extension), "", t)
             ## Backwards compatibility: If a list item is not a file name
             ## but a name of an exisiting table.list,
             ## then load the corresponding table.filename as table
@@ -516,15 +532,16 @@ load.tables <- function(data.dir,
                 }
             }
             ## Make sure that 'ctr' and 'cn' are loaded as 'center' and 'patient'
-            t <- gsub(study.options$file.end, "", t) # shorten the names
-            t <- .removeproj(t) # shorten the names
-            if (t=="ctr") {
-                t2 <- "center"
-            } else if (t %in% c("cn", "casenodes")) {
-                t2 <- "patient"
-            } else {
-                t2 <- t
-            }
+            # t <- gsub(study.options$file.end, "", t) # shorten the names
+            # t <- .removeproj(t) # shorten the names
+            # if (t=="ctr") {
+            #     t2 <- "center"
+            # } else if (t %in% c("cn", "casenodes")) {
+            #     t2 <- "patient"
+            # } else {
+            #     t2 <- t
+            # }
+            t2 <- study.options$data.names[t]
 
             ## Finally load the table
             if(!silent) cat("--- table",table.filename,"loaded as",t2,"---\n")
