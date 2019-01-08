@@ -127,20 +127,17 @@ load.study.options <- function(data.dir) {
     w <- grepl("ExportOptions", files$Name)
     parsed.export <- readLines(file.path(data.dir, files$Name[w]))
   }
+
   version <- parsed.export[max(grep("secuTrial", parsed.export))]
   version <- unlist(regmatches(version, gregexpr("[[:digit:]]\\.[[:digit:]]\\.[[:digit:]]\\.[[:digit:]]", version)))
+  # short names
   shortnames <- any(grepl("Shorten", parsed.export))
-  rt <- any(grepl("[rR]ect", parsed.export))
-  end <- gsub("ExportOptions|.html", "", files$Name[w])
-  if(rt & shortnames){
-    X <- files$Name[grepl(".xls$", files$Name)][1]
-    X <- gsub(".xls", "", X)
-    X <- .removeproj(X)
-  }
-  ext <- unique(sapply(strsplit(files$Name[-w], ".", fixed = TRUE), function(x) x[2]))
   # TODO : German for shorten?
+  # rectangular data
+  rt <- any(grepl("[rR]ect", parsed.export))
 
-  # metadata file names
+
+  # metadata file names ----
   meta_names <- list()
   if(shortnames){
     meta_names$forms <- "fs"
@@ -161,7 +158,21 @@ load.study.options <- function(data.dir) {
   }
   meta_names$cl <- "cl"
 
-  # available metadata
+    # end of file name and extention
+  end <- gsub("ExportOptions|.html", "", files$Name[w])
+  if(rt & shortnames){
+    Y <- paste("^", meta_names, collapse = "|", sep = "")
+    X <- files$Name[grepl(Y, files$Name)][1]
+    X <- gsub(".xls", "", X)
+    X <- gsub(Y, "", X)
+    end <- X
+    rm(X, Y)
+  }
+
+  ext <- unique(sapply(strsplit(files$Name[-w], ".", fixed = TRUE), function(x) x[2]))
+  ext <- ext[ext != "html"]
+
+  # metadata availability ----
   .constructmetaname <- function(x){
     paste0(meta_names[x],
            end,
@@ -221,7 +232,7 @@ load.study.options <- function(data.dir) {
   # IDs
 
 
-  # return object
+  # return object ----
   study.options <- list(sep=sep,
                         date.format = date.format,
                         na.strings = na.strings, # if blanks mean missing
