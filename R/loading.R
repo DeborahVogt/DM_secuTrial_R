@@ -465,9 +465,7 @@ load.tables <- function(data.dir,
         }
         # Get the names of the table.list
         if(!silent) cat("** Building the 'table.list'\n")
-        table.list <- study.options$files
-        # ExportOptions.html are not a dataframe
-        table.list <- table.list[which(table.list!="ExportOptions.html")]
+        table.list <- study.options$data.files
         assign("table.list", table.list, envir=.GlobalEnv)
         if(!silent) cat(paste0("*** ",length(table.list)," tables were found\n"))
         if(!silent) cat("** Calling load.tables(data.dir, tables = table.list, ...)\n")
@@ -503,7 +501,7 @@ load.tables <- function(data.dir,
       for(t in tables) {
             table.filename <- t
             ## For userfriendlieness, strip common endings like .xls or .csv
-            if(substr(t,nchar(t)-2,nchar(t))=="xls"||substr(t,nchar(t)-2,nchar(t))=="csv") t <- substr(t,1,nchar(t)-4)
+            t <- gsub(paste0("\\.", study.options$extension), "", t)
             ## Backwards compatibility: If a list item is not a file name
             ## but a name of an exisiting table.list,
             ## then load the corresponding table.filename as table
@@ -530,8 +528,14 @@ load.tables <- function(data.dir,
 
             ## Finally load the table
             if(!silent) cat("--- table",table.filename,"loaded as",t2,"---\n")
-        assign(t2, read.DB.table(path.or.zip, convert.dates, convert.unknown.date.to.na, rename.headers,
-                                 add.pat.id, add.center, silent), envir = .GlobalEnv)
+        assign(t2, read.DB.table(path.or.zip,
+                                 convert.dates,
+                                 convert.unknown.date.to.na,
+                                 rename.headers,
+                                 add.pat.id,
+                                 add.center,
+                                 silent),
+               envir = .GlobalEnv)
       }
     }
   }
