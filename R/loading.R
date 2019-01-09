@@ -369,11 +369,19 @@ load.tables <- function(data.dir,
   ## rectangular input ----
   if(study.options$is.rectangular) {
     close(path.or.zip)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 82063724c85820f2ccaea3d178d761f98030c64e
     files_in_zip <- study.options$data.files
 
     rtdata_con <- unz(data.dir, filename=files_in_zip[grep("data", files_in_zip)])
     if(!isOpen(rtdata_con)) open(rtdata_con)
     ## rtdata_internal
+<<<<<<< HEAD
+=======
+
+>>>>>>> 82063724c85820f2ccaea3d178d761f98030c64e
     rtdata_internal <- read.csv(file=rtdata_con, header=T, sep="\t")
     close(rtdata_con)
 
@@ -381,6 +389,10 @@ load.tables <- function(data.dir,
       # vp_con <- unz(data.dir, filename=files_in_zip$Name[grep("vp",files_in_zip$Name)])
       # vp <- read.csv(file=vp_con, header=T, sep="\t")
       vp <- .load.meta.table("visitplan")
+<<<<<<< HEAD
+=======
+
+>>>>>>> 82063724c85820f2ccaea3d178d761f98030c64e
       ## clean out spaces and other common disturbing characters
       vp$mnpvislabel <- gsub("\\s+", "_", vp$mnpvislabel)
       vp$mnpvislabel <- gsub("\\.", "", vp$mnpvislabel)
