@@ -68,4 +68,9 @@ load.tables(data.dir=system.file("extdata", "s_export_rt-CSV-xls_DEM00_20181016-
    expect_equal(dim(rtdata),c(112, 128))
  })
 
-
+# test load.labels
+load.study.options(data.dir=system.file("extdata", "s_export_CSV-xls_DEM00_20180912-125720.zip", package = "secuTrial"))
+labs <- load.labels()
+test_that("First label is age", {
+  expect_equal(unname(labs["age"]),"Age")
+})
