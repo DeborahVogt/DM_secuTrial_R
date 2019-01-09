@@ -338,6 +338,7 @@ load.tables <- function(data.dir,
         stop(paste0("File '", data.dir,"' does not exist."))
         return(NULL)
   }
+  if(is.rt) warning("is.rt is deprecated - detected automatically")
 
   load.study.options(data.dir)
 
