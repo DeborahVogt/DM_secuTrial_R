@@ -111,6 +111,8 @@ read.DB.table <- function(path, convert.dates=FALSE, convert.unknown.date.to.na=
 #' 'fill.partial.dates' keeps the orginal column untouched and adds a new column to the data frame with the name <colname>.partial.dates.processed
 #' in which partial are filled using \code{\link{fill.partial.date}} (e.g. Unknown.01.2013 -> 15.01.2013).
 #' With 'fill.partial.dates.and.keep.original' partial dates are processed directly and the original data is copied to <colname>.original.
+#' @value
+#' TODO: add details of the returned object
 #' @export
 #' @seealso read.DB.table, convert.all.dates
 
