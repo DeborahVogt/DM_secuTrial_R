@@ -90,7 +90,7 @@ convert.all.dates <- function(dat, .format="%Y-%m-%d", convert.unknown.date.to.n
           next
         }
         ## restore NA and ""
-        dat[[i]][trim(dat[[i]]) == "NA" | trim(dat[[i]]) == ""] <- NA
+        dat[[i]][trimws(dat[[i]]) == "NA" | trimws(dat[[i]]) == ""] <- NA
         partial.date.string = "  "
       }
       ## convert dates

@@ -36,24 +36,7 @@ mnpaid2mnppid <- function(mnpaid) {
   patient$mnppid[match(mnpaid, patient$mnpaid)]
 }
 
-#' This function trims whitespaces from a string.
-#'
-#' Taken from the lava package
-#'
-#' @param all will remove all whitespaces from string if set to TRUE. If FALSE only leading and trailing whitespaces will be removed.
-#' @return string
-#' @export
-#' @examples
-#' trim("  test string trim  ")
-#' # "test string trim"
-#' trim("  test string trim  ", all=TRUE)
-#' # "teststringtrim"
-trim <- function (x, all = FALSE, ...)
-{
-    if (!all)
-        return(gsub("^\\s+|\\s+$", "", x))
-    return(gsub("\\s", "", x))
-}
+
 
 #' Helper function to strip away trailing center tag in parentheses
 #'
@@ -70,7 +53,7 @@ remove.center.tag <- function(x) {
   x <- as.character(x)
   pos <- which(strsplit(x, "")[[1]]=="(")
   if(length(pos) == 1) {
-    x <- trim(substr(x, 1, pos-1))
+    x <- trimws(substr(x, 1, pos-1))
   }
   return(x)
 }
