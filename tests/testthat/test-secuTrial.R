@@ -4,10 +4,31 @@ context("secuTrial-testing")
 load.tables(data.dir=system.file("extdata", "s_export_CSV-xls_DEM00_20180912-125720.zip", package = "secuTrial"))
 calcium_st <- read.table(system.file("extdata", "calcium_secuTrial.csv", package = "secuTrial"), sep=";", header=TRUE)
 
+# test that rectangular data NOT identified
+test_that("Rectangular data not identified by load.study.options", {
+  expect_false(study.options$is.rectangular)
+})
+
+# test that zip data identified
+test_that("Zipped data identified by load.study.options", {
+  expect_true(study.options$is.zip)
+})
+
+# test that shortnames identified
+test_that("Shortnames identified by load.study.options", {
+  expect_true(study.options$is.zip)
+})
+
 # test dimensions
 test_that("Bone mineral density dataset (non rectangular) has the correct dimensions", {
   expect_equal(dim(bmd),c(501, 25))
 })
+
+# test that all data imported
+test_that("All data imported", {
+  expect_true(all(sapply(study.options$data.names, exists)))
+})
+
 
 # retain relevant columns
 bmd_compare <- bmd[,c("pat.id","mnpvispdt","age","grouping","bmd")]
@@ -66,6 +87,16 @@ load.tables(data.dir=system.file("extdata", "s_export_rt-CSV-xls_DEM00_20181016-
 # test dimensions
  test_that("Bone mineral density dataset (rectangular) has the correct dimensions", {
    expect_equal(dim(rtdata),c(112, 128))
+})
+
+# test that rectangular data identified
+ test_that("Rectangular data identified by load.study.options", {
+   expect_true(study.options$is.rectangular)
+ })
+
+# test that zip data identified
+ test_that("Zipped data identified by load.study.options", {
+   expect_true(study.options$is.zip)
  })
 
 # test load.labels
