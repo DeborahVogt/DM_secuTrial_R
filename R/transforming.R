@@ -46,7 +46,7 @@ mnpaid2mnppid <- function(mnpaid) {
 #' @examples
 #' trim("  test string trim  ")
 #' # "test string trim"
-#' trim("  test string trim  ", all=T)
+#' trim("  test string trim  ", all=TRUE)
 #' # "teststringtrim"
 trim <- function (x, all = FALSE, ...)
 {

@@ -122,7 +122,7 @@ load.study.options <- function(data.dir) {
 
   # shortnames
   if(is.zip){
-    files <- unzip(data.dir, list=T)
+    files <- unzip(data.dir, list=TRUE)
     w <- grepl("ExportOptions", files$Name)
     con <- unz(data.dir, files$Name[w])
     parsed.export <- readLines(con)
@@ -314,7 +314,7 @@ load.study.options <- function(data.dir) {
 #' load.tables(data.dir=system.file("extdata", "s_export_CSV-xls_DEM00_20180912-125720.zip", package = "secuTrial"))
 #' ## rectangular table
 #' load.tables(system.file("extdata", "s_export_rt-CSV-xls_DEM00_20181016-151332.zip", package = "secuTrial"),
-#'             is.rt = T, decode.rt.visitlabels = T)
+#'             is.rt = TRUE, decode.rt.visitlabels = TRUE)
 #' @export
 #' @seealso read.DB.table, load.table.list (used in dossier-specific packages), load.study.options
 #' @references http://stackoverflow.com/questions/3640925/global-variable-in-r-function
