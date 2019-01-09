@@ -586,8 +586,8 @@ load.tables <- function(data.dir,
 
 load.labels <- function(){
   if(!exists("study.options")) stop("'study.options' not found \nrun load.study.options(...) or load.tables(...)")
-  if(options()$stringsAsFactors) warning("stringsAsFactors is TRUE. Recommend setting to FALSE")
-
+  on.exit(options("stringsAsFactors"))
+  if(options()$stringsAsFactors) options(stringsAsFactors = FALSE)
   if(study.options$is.zip){
     con <- unz(study.options$data.dir,
                secuTrial:::.constructmetaname("items"))
