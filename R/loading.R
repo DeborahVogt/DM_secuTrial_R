@@ -586,18 +586,21 @@ load.tables <- function(data.dir,
 
 load.labels <- function(){
   if(!exists("study.options")) stop("'study.options' not found \nrun load.study.options(...) or load.tables(...)")
+  if(options()$stringsAsFactors) warning("stringsAsFactors is TRUE. Recommend setting to FALSE")
+
   if(study.options$is.zip){
     con <- unz(study.options$data.dir,
-               .constructmetaname("items"))
+               secuTrial:::.constructmetaname("items"))
     tmp <- read.table(con,
                       sep = study.options$sep,
                       na.strings = study.options$na.strings,
                       header = TRUE)
-    close(con)
+    myIsOpen <- function(con) tryCatch(isOpen(con), error=function(e) FALSE)
+    if(myIsOpen(con)) close(con)
 
   } else {
     tmp <- read.table(file.path(study.options$data.dir,
-                                .constructmetaname("items")),
+                                secuTrial:::.constructmetaname("items")),
                       sep = study.options$sep,
                       na.strings = study.options$na.strings,
                       header = TRUE)
