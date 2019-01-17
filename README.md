@@ -22,9 +22,9 @@ devtools::run_examples(".")
 ## Guidelines for contributers
 
 In order to contribute to this R library you should fork the main repository, make your changes and send a pull request (PR). 
-The PR should also have a description to help the reviewer understand what has been added/changed. New functionalities must be 
-thoroughly documented, have examples and should be accompanied by at least one 
-test in [test-secuTrial.R](tests/testthat/test-secuTrial.R) to ensure lonterm robustness.
-The PR will only be reviewed if all travis checks are successful. The person sending the PR should generally not be 
+The PR should also have a description to help the reviewer understand what has been added/changed. 
+New functionalities must be thoroughly documented, have examples and should be accompanied by at least one 
+test in [test-secuTrial.R](tests/testthat/test-secuTrial.R) to ensure longterm robustness.
+The PR will only be reviewed if all travis checks are successful. The person sending the PR should not be 
 the one merging it.
 
