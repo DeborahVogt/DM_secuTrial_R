@@ -57,7 +57,7 @@ are specified in \code{load.study.options}.
 load.tables(data.dir=system.file("extdata", "s_export_CSV-xls_DEM00_20180912-125720.zip", package = "secuTrial"))
 ## rectangular table
 load.tables(system.file("extdata", "s_export_rt-CSV-xls_DEM00_20181016-151332.zip", package = "secuTrial"),
-            is.rt = TRUE, decode.rt.visitlabels = TRUE)
+            decode.rt.visitlabels = TRUE)
 }
 \references{
 http://stackoverflow.com/questions/3640925/global-variable-in-r-function
