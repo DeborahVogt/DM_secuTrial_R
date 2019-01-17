@@ -571,7 +571,7 @@ load.tables <- function(data.dir,
 
 
 
-#' Load labels from an export .
+#' Load labels from an export (non rectangular).
 #'
 #' Get a named vector of variable labels.
 #' Uses results of \code{load.study.options} directly - must be run after \code{load.tables} or \code{load.study.options}
@@ -587,6 +587,7 @@ load.tables <- function(data.dir,
 
 load.labels <- function(){
   if(!exists("study.options")) stop("'study.options' not found \nrun load.study.options(...) or load.tables(...)")
+  if(study.options$is.rectangular) stop("load.labels() is not a valid function for rectangular data")
   on.exit(options("stringsAsFactors"))
   if(options()$stringsAsFactors) options(stringsAsFactors = FALSE)
   if(study.options$is.zip){

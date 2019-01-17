@@ -2,7 +2,7 @@
 % Please edit documentation in R/loading.R
 \name{load.labels}
 \alias{load.labels}
-\title{Load labels from an export .}
+\title{Load labels from an export (non rectangular).}
 \usage{
 load.labels()
 }
