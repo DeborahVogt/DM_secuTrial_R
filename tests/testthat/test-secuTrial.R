@@ -82,7 +82,7 @@ test_that("Test center retrieval", {
 })
 
 # test rectangular table loading
-load.tables(data.dir=system.file("extdata", "s_export_rt-CSV-xls_DEM00_20181016-151332.zip", package = "secuTrial"), is.rt = T, decode.rt.visitlabels = T)
+load.tables(data.dir=system.file("extdata", "s_export_rt-CSV-xls_DEM00_20181016-151332.zip", package = "secuTrial"), decode.rt.visitlabels = T)
 
 # test dimensions
  test_that("Bone mineral density dataset (rectangular) has the correct dimensions", {
