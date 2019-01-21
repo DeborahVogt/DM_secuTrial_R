@@ -107,16 +107,10 @@ test_that("First label is age", {
 })
 
 # test rectangular label in study.options
-# non-rect data
-test_that("Data is not rectangular", {
-  expect_false(study.options$is.rectangular)
-})
 # rect data
 load.study.options(data.dir=system.file("extdata", "s_export_rt-CSV-xls_DEM00_20181016-151332.zip", package = "secuTrial"))
 test_that("Data is rectangular", {
   expect_true(study.options$is.rectangular)
 })
-
-
 
 
