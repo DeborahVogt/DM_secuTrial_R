@@ -314,7 +314,7 @@ load.study.options <- function(data.dir) {
 #' load.tables(data.dir=system.file("extdata", "s_export_CSV-xls_DEM00_20180912-125720.zip", package = "secuTrial"))
 #' ## rectangular table
 #' load.tables(system.file("extdata", "s_export_rt-CSV-xls_DEM00_20181016-151332.zip", package = "secuTrial"),
-#'             is.rt = TRUE, decode.rt.visitlabels = TRUE)
+#'             decode.rt.visitlabels = TRUE)
 #' @export
 #' @seealso read.DB.table, load.table.list (used in dossier-specific packages), load.study.options
 #' @references http://stackoverflow.com/questions/3640925/global-variable-in-r-function
@@ -571,7 +571,7 @@ load.tables <- function(data.dir,
 
 
 
-#' Load labels from an export .
+#' Load labels from an export (non rectangular).
 #'
 #' Get a named vector of variable labels.
 #' Uses results of \code{load.study.options} directly - must be run after \code{load.tables} or \code{load.study.options}
@@ -587,6 +587,7 @@ load.tables <- function(data.dir,
 
 load.labels <- function(){
   if(!exists("study.options")) stop("'study.options' not found \nrun load.study.options(...) or load.tables(...)")
+  if(study.options$is.rectangular) stop("load.labels() is not a valid function for rectangular data")
   on.exit(options("stringsAsFactors"))
   if(options()$stringsAsFactors) options(stringsAsFactors = FALSE)
   if(study.options$is.zip){
